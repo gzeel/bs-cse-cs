@@ -1,10 +1,5 @@
 # Les 1 - Hello, IAC!
 
-Leerdoelen:
-
-1. Aan het einde van deze les ken je het begrip Infrastructure as Code.
-2. Aan het einde van deze les heb je een ontwikkelomgeving (VSCode, Git repository) opgezet om je code op te gaan ontwikkelen en deployen
-
 Inhoud:
 
 - Introductie vak IAC

@@ -1,0 +1,338 @@
+name: Convert Markdown to HTML
+
+on:
+  push:
+    branches:
+      - "**"
+      - "!docs" # Exclude docs branch to avoid circular triggers
+    paths:
+      - "**/*.md" # Only trigger on markdown file changes
+
+jobs:
+  convert-markdown:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for proper branch handling
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: |
+          npm init -y
+          npm install markdown-it markdown-it-highlightjs highlightjs
+          npm install catppuccin-highlightjs
+
+      - name: Create conversion script
+        run: |
+          cat > convert.js << 'EOF'
+          const fs = require('fs').promises;
+          const path = require('path');
+          const MarkdownIt = require('markdown-it');
+          const highlightjs = require('markdown-it-highlightjs');
+
+          // Initialize markdown parser with highlightjs
+          const md = new MarkdownIt({
+            html: true,
+            linkify: true,
+            typographer: true
+          }).use(highlightjs, {
+            register: {
+              catppuccin: require('catppuccin-highlightjs/mocha')
+            },
+            auto: true,
+            theme: 'catppuccin' 
+          });
+
+          // HTML template with Catppuccin styling
+          const htmlTemplate = (content, title) => `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>${title}</title>
+            <style>
+              :root {
+                /* Catppuccin Mocha colors */
+                --rosewater: #f5e0dc;
+                --flamingo: #f2cdcd;
+                --pink: #f5c2e7;
+                --mauve: #cba6f7;
+                --red: #f38ba8;
+                --maroon: #eba0ac;
+                --peach: #fab387;
+                --yellow: #f9e2af;
+                --green: #a6e3a1;
+                --teal: #94e2d5;
+                --sky: #89dceb;
+                --sapphire: #74c7ec;
+                --blue: #89b4fa;
+                --lavender: #b4befe;
+                --text: #cdd6f4;
+                --subtext1: #bac2de;
+                --subtext0: #a6adc8;
+                --overlay2: #9399b2;
+                --overlay1: #7f849c;
+                --overlay0: #6c7086;
+                --surface2: #585b70;
+                --surface1: #45475a;
+                --surface0: #313244;
+                --base: #1e1e2e;
+                --mantle: #181825;
+                --crust: #11111b;
+              }
+              
+              body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                line-height: 1.6;
+                color: var(--text);
+                background-color: var(--base);
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 2rem;
+              }
+              
+              h1, h2, h3, h4, h5, h6 {
+                color: var(--lavender);
+                margin-top: 2rem;
+                margin-bottom: 1rem;
+              }
+              
+              h1 {
+                font-size: 2.5rem;
+                border-bottom: 2px solid var(--surface0);
+                padding-bottom: 0.5rem;
+              }
+              
+              h2 {
+                font-size: 2rem;
+                border-bottom: 1px solid var(--surface0);
+                padding-bottom: 0.3rem;
+              }
+              
+              a {
+                color: var(--blue);
+                text-decoration: none;
+              }
+              
+              a:hover {
+                text-decoration: underline;
+                color: var(--sky);
+              }
+              
+              code {
+                font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+                background-color: var(--surface0);
+                padding: 0.2rem 0.4rem;
+                border-radius: 3px;
+                font-size: 0.9em;
+              }
+              
+              pre {
+                background-color: var(--mantle);
+                padding: 1rem;
+                border-radius: 5px;
+                overflow-x: auto;
+              }
+              
+              pre code {
+                background-color: transparent;
+                padding: 0;
+                font-size: 0.9rem;
+              }
+              
+              blockquote {
+                border-left: 4px solid var(--mauve);
+                padding-left: 1rem;
+                margin-left: 0;
+                color: var(--subtext0);
+              }
+              
+              img {
+                max-width: 100%;
+                height: auto;
+              }
+              
+              table {
+                border-collapse: collapse;
+                width: 100%;
+                margin: 2rem 0;
+              }
+              
+              table, th, td {
+                border: 1px solid var(--surface2);
+              }
+              
+              th, td {
+                padding: 0.5rem;
+                text-align: left;
+              }
+              
+              th {
+                background-color: var(--surface0);
+              }
+              
+              tr:nth-child(even) {
+                background-color: var(--surface0);
+              }
+              
+              hr {
+                border: none;
+                height: 1px;
+                background-color: var(--surface2);
+                margin: 2rem 0;
+              }
+              
+              .hljs {
+                background: var(--mantle);
+                color: var(--text);
+                border-radius: 5px;
+              }
+              
+              /* Add more highlight.js theme overrides as needed */
+            </style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/catppuccin-highlightjs/css/catppuccin-mocha.css">
+          </head>
+          <body>
+            ${content}
+          </body>
+          </html>
+          `;
+
+          async function findMarkdownFiles(directory) {
+            const fileList = [];
+            
+            async function traverse(dir) {
+              const files = await fs.readdir(dir, { withFileTypes: true });
+              
+              for (const file of files) {
+                const fullPath = path.join(dir, file.name);
+                
+                if (file.isDirectory()) {
+                  // Skip node_modules and .git directories
+                  if (file.name !== 'node_modules' && file.name !== '.git') {
+                    await traverse(fullPath);
+                  }
+                } else if (file.name.endsWith('.md')) {
+                  fileList.push(fullPath);
+                }
+              }
+            }
+            
+            await traverse(directory);
+            return fileList;
+          }
+
+          async function convertMarkdownToHtml(mdFilePath, outputDir) {
+            try {
+              // Read markdown content
+              const mdContent = await fs.readFile(mdFilePath, 'utf8');
+              
+              // Convert markdown to HTML
+              const htmlContent = md.render(mdContent);
+              
+              // Determine file paths
+              const relativePath = path.relative('.', mdFilePath);
+              const outputPath = path.join(outputDir, relativePath.replace(/\.md$/, '.html'));
+              
+              // Create directory structure if it doesn't exist
+              await fs.mkdir(path.dirname(outputPath), { recursive: true });
+              
+              // Get title from first heading or filename
+              let title = path.basename(mdFilePath, '.md');
+              const headingMatch = mdContent.match(/^#\s+(.+)$/m);
+              if (headingMatch) {
+                title = headingMatch[1];
+              }
+              
+              // Write HTML file
+              await fs.writeFile(outputPath, htmlTemplate(htmlContent, title));
+              
+              console.log(`Converted ${mdFilePath} to ${outputPath}`);
+            } catch (error) {
+              console.error(`Error converting ${mdFilePath}:`, error);
+              process.exit(1);
+            }
+          }
+
+          async function main() {
+            try {
+              const outputDir = 'html_output';
+              
+              // Create output directory
+              await fs.mkdir(outputDir, { recursive: true });
+              
+              // Find all markdown files
+              const mdFiles = await findMarkdownFiles('.');
+              
+              // Convert each markdown file to HTML
+              for (const mdFile of mdFiles) {
+                await convertMarkdownToHtml(mdFile, outputDir);
+              }
+              
+              console.log('Conversion completed successfully!');
+            } catch (error) {
+              console.error('Error during conversion:', error);
+              process.exit(1);
+            }
+          }
+
+          main();
+          EOF
+
+      - name: Run conversion script
+        run: node convert.js
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+
+      - name: Checkout docs branch
+        run: |
+          if git ls-remote --heads origin docs; then
+            git fetch origin docs
+            git checkout docs
+          else
+            git checkout --orphan docs
+            git rm -rf .
+            git commit --allow-empty -m "Initial commit for docs branch"
+          fi
+
+      - name: Copy HTML files to docs branch
+        run: |
+          # Create directories and copy files
+          mkdir -p temp_copy
+          cp -r html_output/* temp_copy/
+
+          # Clean existing files but keep .git directory
+          find . -not -path "./.git*" -not -path "./temp_copy*" -delete
+
+          # Move the files back
+          cp -r temp_copy/* .
+          rm -rf temp_copy
+
+      - name: Commit and push to docs branch
+        run: |
+          git add .
+
+          if git status | grep -q "nothing to commit"; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Convert Markdown to HTML from branch ${GITHUB_REF#refs/heads/}"
+
+          # Use GitHub token for authentication
+          git remote set-url origin https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}
+          git push origin docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
