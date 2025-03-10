@@ -17,7 +17,6 @@ Inhoud:
 - Bla
 - Bla 2
 - Bla 3
-- Bla 4
 
 ## Introductie Infrastructure as Code
 
