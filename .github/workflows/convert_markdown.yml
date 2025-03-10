@@ -536,7 +536,7 @@ jobs:
               return `<img${before}src="images/${imageName}"${after}>`;
             });
             
-            return { html: processedHtml, imagesToCopy };
+            return { processedHtml, imagesToCopy };
           }
 
           async function findMarkdownFiles(directory) {
@@ -622,11 +622,17 @@ jobs:
               
               // Find all markdown files
               const mdFiles = await findMarkdownFiles('.');
+              console.log(`Found ${mdFiles.length} markdown files to convert`);
               
               // Convert each markdown file to HTML
               for (const mdFile of mdFiles) {
+                console.log(`Processing: ${mdFile}`);
                 await convertMarkdownToHtml(mdFile, outputDir);
               }
+              
+              // After all conversions, print all images directories
+              console.log('\nImage directories created:');
+              await findImagesDirectories(outputDir);
               
               console.log('Conversion completed successfully!');
             } catch (error) {
@@ -635,11 +641,47 @@ jobs:
             }
           }
 
+          async function findImagesDirectories(dir) {
+            try {
+              const directories = [];
+              
+              async function traverse(currentDir) {
+                const entries = await fs.readdir(currentDir, { withFileTypes: true });
+                
+                for (const entry of entries) {
+                  const fullPath = path.join(currentDir, entry.name);
+                  
+                  if (entry.isDirectory()) {
+                    if (entry.name === 'images') {
+                      directories.push(fullPath);
+                      // List contents of the images directory
+                      const images = await fs.readdir(fullPath);
+                      console.log(`${fullPath} contains ${images.length} files: ${images.join(', ')}`);
+                    } else {
+                      await traverse(fullPath);
+                    }
+                  }
+                }
+              }
+              
+              await traverse(dir);
+              return directories;
+            } catch (error) {
+              console.error('Error finding images directories:', error);
+              return [];
+            }
+          }
+
           main();
           EOF
 
       - name: Run conversion script
-        run: node convert.js
+        run: |
+          echo "Starting conversion script"
+          node convert.js
+          echo "Conversion script completed"
+          echo "Generated HTML structure:"
+          find html_output -type f | sort
 
       - name: Configure Git
         run: |
@@ -657,11 +699,19 @@ jobs:
             git commit --allow-empty -m "Initial commit for docs branch"
           fi
 
-      - name: Copy HTML files to docs branch
+      - name: Copy HTML files and images to docs branch
         run: |
+          # List all contents to debug
+          echo "Contents of html_output:"
+          find html_output -type f | sort
+
           # Create directories and copy files
           mkdir -p temp_copy
           cp -r html_output/* temp_copy/
+
+          # Make sure we preserve the images
+          echo "Preserving images directory structure"
+          find html_output -type d -name "images" -exec ls -la {} \;
 
           # Clean existing files but keep .git directory
           find . -not -path "./.git*" -not -path "./temp_copy*" -delete
@@ -669,6 +719,10 @@ jobs:
           # Move the files back
           cp -r temp_copy/* .
           rm -rf temp_copy
+
+          # List final content to verify
+          echo "Final docs branch content:"
+          find . -not -path "./.git*" -type f | sort
 
       - name: Commit and push to docs branch
         run: |
