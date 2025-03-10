@@ -15,6 +15,7 @@ Inhoud:
 - Alle code moet in Gitlab (gitlab.windesheim.nl)
 - Bij elke week schrijf je een README.md wat je gedaan hebt en hoe de code werkt.
 - Bla
+- Bla 2
 
 ## Introductie Infrastructure as Code
 

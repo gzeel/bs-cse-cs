@@ -301,8 +301,8 @@ jobs:
                 title = headingMatch[1];
               }
               
-              // Write HTML file
-              await fs.writeFile(outputPath, htmlTemplate(htmlContent, title));
+              // Write HTML file with fixed image paths
+              await fs.writeFile(outputPath, htmlTemplate(fixedHtmlContent, title));
               
               console.log(`Converted ${mdFilePath} to ${outputPath}`);
             } catch (error) {
@@ -355,11 +355,14 @@ jobs:
             git commit --allow-empty -m "Initial commit for docs branch"
           fi
 
-      - name: Copy HTML files to docs branch
+      - name: Copy HTML files and images to docs branch
         run: |
-          # Create directories and copy files
+          # Create directories and copy HTML files
           mkdir -p temp_copy
           cp -r html_output/* temp_copy/
+
+          # Copy images to temp directory
+          find . -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.svg" -o -iname "*.webp" \) -not -path "./node_modules/*" -not -path "./.git/*" -exec cp --parents {} temp_copy/ \;
 
           # Clean existing files but keep .git directory
           find . -not -path "./.git*" -not -path "./temp_copy*" -delete
