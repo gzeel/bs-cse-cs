@@ -31,9 +31,9 @@
       --surface2: #acb0be;
       --surface1: #bcc0cc;
       --surface0: #ccd0da;
-      --base: #eff1f5;
-      --mantle: #e6e9ef;
-      --crust: #dce0e8;
+      --base: #ffffff;
+      --mantle: #f5f5f5;
+      --crust: #eff1f5;
     }
     
     body {
@@ -74,8 +74,9 @@
       color: var(--sky);
     }
     
+    /* Code blocks - Catppuccin Mocha theme */
     pre {
-      background-color: var(--crust);
+      background-color: #1e1e2e; /* Mocha base */
       padding: 1rem;
       border-radius: 5px;
       overflow-x: auto;
@@ -85,6 +86,7 @@
       background-color: transparent;
       padding: 0;
       font-size: 0.9rem;
+      color: #cdd6f4; /* Mocha text */
     }
     
     code {
@@ -139,15 +141,63 @@
     }
     
     .hljs {
-      background: var(--crust);
-      color: var(--text);
+      background: #1e1e2e; /* Mocha base */
+      color: #cdd6f4; /* Mocha text */
       border-radius: 5px;
+    }
+    
+    /* Highlight.js Catppuccin Mocha theme */
+    .hljs-comment,
+    .hljs-quote {
+      color: #9399b2; /* Mocha overlay2 */
+      font-style: italic;
+    }
+    
+    .hljs-keyword,
+    .hljs-selector-tag {
+      color: #cba6f7; /* Mocha mauve */
+    }
+    
+    .hljs-string,
+    .hljs-attribute,
+    .hljs-symbol,
+    .hljs-bullet,
+    .hljs-template-tag {
+      color: #a6e3a1; /* Mocha green */
+    }
+    
+    .hljs-name,
+    .hljs-function,
+    .hljs-subst {
+      color: #89b4fa; /* Mocha blue */
+    }
+    
+    .hljs-type,
+    .hljs-built_in,
+    .hljs-params {
+      color: #f9e2af; /* Mocha yellow */
+    }
+    
+    .hljs-literal,
+    .hljs-number {
+      color: #fab387; /* Mocha peach */
+    }
+    
+    .hljs-title,
+    .hljs-class .hljs-title {
+      color: #74c7ec; /* Mocha sapphire */
+    }
+    
+    .hljs-tag,
+    .hljs-selector-id,
+    .hljs-selector-class {
+      color: #f38ba8; /* Mocha red */
     }
     
     /* Add more highlight.js theme overrides as needed */
   </style>
-  <!-- Use a light theme for code highlighting -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <!-- Remove external syntax highlighting theme as we're defining our own -->
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"> -->
 </head>
 <body>
   <h1>Les 1 - Hello, IAC!</h1>
@@ -163,7 +213,6 @@
 <h2>Introductie vak IAC</h2>
 <ul>
 <li>Alle losse opdrachten bij elkaar vormt voor je eindopdracht</li>
-<li>Aan het einde maak je een portfolio video waarin je laat zien dat alle opdrachten werken</li>
 <li>Alle code moet in Gitlab (<a href="http://gitlab.windesheim.nl">gitlab.windesheim.nl</a>)</li>
 <li>Bij elke week schrijf je een <a href="http://README.md">README.md</a> wat je gedaan hebt en hoe de code werkt.</li>
 </ul>
