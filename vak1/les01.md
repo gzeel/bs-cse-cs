@@ -12,7 +12,6 @@ Inhoud:
 ## Introductie vak IAC
 
 - Alle losse opdrachten bij elkaar vormt voor je eindopdracht
-- Aan het einde maak je een portfolio video waarin je laat zien dat alle opdrachten werken
 - Alle code moet in Gitlab (gitlab.windesheim.nl)
 - Bij elke week schrijf je een README.md wat je gedaan hebt en hoe de code werkt.
 
