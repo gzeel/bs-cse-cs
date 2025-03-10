@@ -50,7 +50,7 @@
       border-radius: 6px;
       background-color: var(--color-canvas-default);
     }
-
+    
     /* Table of Contents */
     .toc-container {
       margin-bottom: 32px;
@@ -325,92 +325,6 @@
       color: #22863a;
       background-color: #f0fff4;
     }
-
-    /* For dark mode - if needed, uncomment and adjust
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --color-canvas-default: #0d1117;
-        --color-canvas-subtle: #161b22;
-        --color-border-default: #30363d;
-        --color-border-muted: #21262d;
-        --color-neutral-muted: rgba(110, 118, 129, 0.4);
-        --color-accent-fg: #58a6ff;
-        --color-accent-emphasis: #1f6feb;
-        --color-danger-fg: #f85149;
-        --color-fg-default: #c9d1d9;
-        --color-fg-muted: #8b949e;
-        --color-fg-subtle: #6e7681;
-        --color-success-fg: #3fb950;
-        --color-attention-fg: #d29922;
-        --color-code-block-bg: #161b22;
-        --color-code-block-border: #30363d;
-      }
-
-      .hljs-doctag,
-      .hljs-keyword,
-      .hljs-meta .hljs-keyword,
-      .hljs-template-tag,
-      .hljs-template-variable,
-      .hljs-type,
-      .hljs-variable.language_ {
-        color: #ff7b72;
-      }
-      
-      .hljs-title,
-      .hljs-title.class_,
-      .hljs-title.class_.inherited__,
-      .hljs-title.function_ {
-        color: #d2a8ff;
-      }
-      
-      .hljs-attr,
-      .hljs-attribute,
-      .hljs-literal,
-      .hljs-meta,
-      .hljs-number,
-      .hljs-operator,
-      .hljs-selector-attr,
-      .hljs-selector-class,
-      .hljs-selector-id,
-      .hljs-variable {
-        color: #79c0ff;
-      }
-      
-      .hljs-meta .hljs-string,
-      .hljs-regexp,
-      .hljs-string {
-        color: #a5d6ff;
-      }
-      
-      .hljs-built_in,
-      .hljs-symbol {
-        color: #ffa657;
-      }
-      
-      .hljs-comment,
-      .hljs-code,
-      .hljs-formula {
-        color: #8b949e;
-      }
-      
-      .hljs-name,
-      .hljs-quote,
-      .hljs-selector-tag,
-      .hljs-selector-pseudo {
-        color: #7ee787;
-      }
-      
-      .hljs-deletion {
-        color: #ffa198;
-        background-color: #490202;
-      }
-      
-      .hljs-addition {
-        color: #aff5b4;
-        background-color: #033a16;
-      }
-    }
-    */
   </style>
 </head>
 <body>
@@ -422,7 +336,214 @@
   
   
   <div class="markdown-body">
-    [object Object]
+    <h1 id="les-1---hello%2C-iac!" tabindex="-1">Les 1 - Hello, IAC! <a class="anchor" href="#les-1---hello%2C-iac!" aria-hidden="true">#</a></h1>
+<p>Inhoud:</p>
+<ul>
+<li>Introductie vak IAC</li>
+<li>Introductie Infrastructure as Code</li>
+<li>Waarom IAC? Waarom <em>geen</em> IAC?</li>
+<li>Key Principes</li>
+<li>Ontwikkelomgeving</li>
+<li>Een eerste deployment</li>
+</ul>
+<h2 id="introductie-vak-iac" tabindex="-1">Introductie vak IAC <a class="anchor" href="#introductie-vak-iac" aria-hidden="true">#</a></h2>
+<ul>
+<li>Alle losse opdrachten bij elkaar vormt voor je eindopdracht</li>
+<li>Alle code moet in Gitlab (<a href="http://gitlab.windesheim.nl">gitlab.windesheim.nl</a>)</li>
+<li>Bij elke week schrijf je een <a href="http://README.md">README.md</a> wat je gedaan hebt en hoe de code werkt.</li>
+<li>Bla</li>
+<li>Bla 2</li>
+<li>Bla 3</li>
+<li>Bla 5</li>
+<li>Bla 6</li>
+<li>Bla 7</li>
+<li>Bla 8</li>
+</ul>
+<h2 id="introductie-infrastructure-as-code" tabindex="-1">Introductie Infrastructure as Code <a class="anchor" href="#introductie-infrastructure-as-code" aria-hidden="true">#</a></h2>
+<p>Veel ontwikkelaars en systeembeheerders beheren servers door via SSH in te loggen, wijzigingen door te voeren en daarna weer uit te loggen. Soms wordt bijgehouden wat er is aangepast, maar vaak ook niet. Als een beheerder dezelfde wijziging op meerdere servers moet uitvoeren (bijvoorbeeld een configuratie aanpassen), logt hij op elke server apart in en herhaalt de aanpassing steeds opnieuw.</p>
+<p>Dit werkt prima als er maar één of twee wijzigingen nodig zijn gedurende de levensduur van een server, de server heel eenvoudig is (bijvoorbeeld één proces met een simpele configuratie) en elke wijziging goed wordt vastgelegd. Maar in de meeste bedrijven zijn servers veel complexer. Ze draaien vaak tientallen tot honderden applicaties of containers, hebben ingewikkelde firewalls en veel aangepaste configuratiebestanden. Zelfs met goede documentatie worden bij handmatige aanpassingen vaak servers of stappen overgeslagen.</p>
+<p>Als een bedrijf een nieuwe server wil instellen die precies werkt zoals een bestaande server, kost dat veel tijd. Beheerders moeten alle geïnstalleerde software, instellingen, versies en configuraties nakijken en documenteren. Daarna moeten ze alles handmatig opnieuw installeren, updaten en instellen, wat veel onnodige tijd kost.</p>
+<p>Soms maken beheerders een shell-script om dit proces makkelijker te maken, maar die scripts worden vaak te ingewikkeld, alleen begrepen door de maker en niet bruikbaar op andere systemen door verschillen in hardware of software.</p>
+<h5 id="shell-commando%E2%80%99s" tabindex="-1">Shell commando’s <a class="anchor" href="#shell-commando%E2%80%99s" aria-hidden="true">#</a></h5>
+<p>Bijvoorbeeld, een beheerder wil een nginx webserver en de passenger applicatieserver installeren. Dit kan hij doen met de volgende commando’s:</p>
+<p><strong>Uitwerking:</strong></p>
+<pre><code class="hljs language-bash">root@server:~# vi /etc/apt/sources.list.d/passenger.list
+root@server:~# <span class="hljs-built_in">chown</span> root: /etc/apt/sources.list.d/passenger.list
+root@server:~# <span class="hljs-built_in">chmod</span> 600 /etc/apt/sources.list.d/passenger.list
+
+root@server:~# apt-get update
+
+root@server:~# apt-get install nginx-full passenger
+root@server:~# vi /etc/nginx/nginx.conf
+
+root@server:~# service nginx restart
+</code></pre>
+<p>Je ziet dat de beheerder een aantal configuratiebestanden en rechten moet aanpassen, de packages installeert en de service herstart. Maar je hebt geen idee wat hij nou heeft aangepast, dus het is niet heel herhaalbaar voor iemand anders zonder documentatie.
+Een oplossing kan dan een shell script zijn. In een shell script kun je alle commando’s die je op de CLI intikt achter elkaar zetten en er wat logica (if/then/for etc) aan toevoegen. Maar shell script kunnen (onnodig) complex worden door deze logica. Kijk maar eens naar het voorbeeld hieronder. Het zijn dezelfde commando’s als net op de CLI, maar dan met allerlei condities toegevoegd.</p>
+<pre><code class="hljs language-bash"><span class="hljs-meta">#!/bin/bash</span>
+
+<span class="hljs-comment"># Configuratie</span>
+LOGFILE=<span class="hljs-string">&quot;/var/log/install_nginx_passenger.log&quot;</span>
+NGINX_CONF=<span class="hljs-string">&quot;/etc/nginx/nginx.conf&quot;</span>
+PASSENGER_REPO_FILE=<span class="hljs-string">&quot;/etc/apt/sources.list.d/passenger.list&quot;</span>
+
+<span class="hljs-comment"># Functie voor logging</span>
+<span class="hljs-function"><span class="hljs-title">log_message</span></span>() {
+    <span class="hljs-built_in">local</span> LOG_LEVEL=<span class="hljs-variable">$1</span>
+    <span class="hljs-built_in">local</span> MESSAGE=<span class="hljs-variable">$2</span>
+    <span class="hljs-built_in">echo</span> -e <span class="hljs-string">&quot;[<span class="hljs-subst">$(date &#x27;+%Y-%m-%d %H:%M:%S&#x27;)</span>] [<span class="hljs-variable">$LOG_LEVEL</span>] <span class="hljs-variable">$MESSAGE</span>&quot;</span> | <span class="hljs-built_in">tee</span> -a <span class="hljs-string">&quot;<span class="hljs-variable">$LOGFILE</span>&quot;</span>
+}
+
+<span class="hljs-comment"># Controleren op root-rechten</span>
+<span class="hljs-keyword">if</span> [[ <span class="hljs-variable">$EUID</span> -ne 0 ]]; <span class="hljs-keyword">then</span>
+    log_message <span class="hljs-string">&quot;ERROR&quot;</span> <span class="hljs-string">&quot;Dit script moet als root worden uitgevoerd.&quot;</span>
+    <span class="hljs-built_in">exit</span> 1
+<span class="hljs-keyword">fi</span>
+
+<span class="hljs-comment"># Installeren van apt-transport-https</span>
+log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Controleren of apt-transport-https al is geïnstalleerd...&quot;</span>
+<span class="hljs-keyword">if</span> ! dpkg -l | grep -q apt-transport-https; <span class="hljs-keyword">then</span>
+    log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;apt-transport-https wordt geïnstalleerd...&quot;</span>
+    apt-get install -y apt-transport-https &gt;&gt; <span class="hljs-string">&quot;<span class="hljs-variable">$LOGFILE</span>&quot;</span> 2&gt;&amp;1 || { log_message <span class="hljs-string">&quot;ERROR&quot;</span> <span class="hljs-string">&quot;Installatie van apt-transport-https mislukt!&quot;</span>; <span class="hljs-built_in">exit</span> 1; }
+<span class="hljs-keyword">else</span>
+    log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;apt-transport-https is al geïnstalleerd.&quot;</span>
+<span class="hljs-keyword">fi</span>
+
+<span class="hljs-comment"># Toevoegen van Passenger repository</span>
+log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Controleren of Passenger repository al bestaat...&quot;</span>
+<span class="hljs-keyword">if</span> [[ ! -f <span class="hljs-string">&quot;<span class="hljs-variable">$PASSENGER_REPO_FILE</span>&quot;</span> ]]; <span class="hljs-keyword">then</span>
+    log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Passenger repository toevoegen...&quot;</span>
+    <span class="hljs-built_in">cat</span> &lt;&lt;<span class="hljs-string">EOF &gt; &quot;$PASSENGER_REPO_FILE&quot;
+deb https://oss-binaries.phusionpassenger.com/apt/passenger focal main
+EOF</span>
+    <span class="hljs-built_in">chown</span> root: <span class="hljs-string">&quot;<span class="hljs-variable">$PASSENGER_REPO_FILE</span>&quot;</span>
+    <span class="hljs-built_in">chmod</span> 600 <span class="hljs-string">&quot;<span class="hljs-variable">$PASSENGER_REPO_FILE</span>&quot;</span>
+<span class="hljs-keyword">else</span>
+    log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Passenger repository bestand bestaat al.&quot;</span>
+<span class="hljs-keyword">fi</span>
+
+<span class="hljs-comment"># Apt-cache bijwerken</span>
+log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Apt-cache bijwerken...&quot;</span>
+apt-get update &gt;&gt; <span class="hljs-string">&quot;<span class="hljs-variable">$LOGFILE</span>&quot;</span> 2&gt;&amp;1 || { log_message <span class="hljs-string">&quot;ERROR&quot;</span> <span class="hljs-string">&quot;Apt-cache update mislukt!&quot;</span>; <span class="hljs-built_in">exit</span> 1; }
+
+<span class="hljs-comment"># Installeren van nginx en passenger</span>
+log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Controleren of nginx en passenger al zijn geïnstalleerd...&quot;</span>
+<span class="hljs-keyword">if</span> ! dpkg -l | grep -q nginx; <span class="hljs-keyword">then</span>
+    log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;nginx wordt geïnstalleerd...&quot;</span>
+    apt-get install -y nginx-full passenger &gt;&gt; <span class="hljs-string">&quot;<span class="hljs-variable">$LOGFILE</span>&quot;</span> 2&gt;&amp;1 || { log_message <span class="hljs-string">&quot;ERROR&quot;</span> <span class="hljs-string">&quot;Installatie van nginx of passenger mislukt!&quot;</span>; <span class="hljs-built_in">exit</span> 1; }
+<span class="hljs-keyword">else</span>
+    log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;nginx is al geïnstalleerd.&quot;</span>
+<span class="hljs-keyword">fi</span>
+
+<span class="hljs-comment"># Configureren van nginx</span>
+log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Controleren of Passenger is geconfigureerd in nginx...&quot;</span>
+<span class="hljs-keyword">if</span> ! grep -q <span class="hljs-string">&quot;passenger_root&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$NGINX_CONF</span>&quot;</span>; <span class="hljs-keyword">then</span>
+    log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Passenger configuratie toevoegen aan nginx...&quot;</span>
+    sed -i <span class="hljs-string">&#x27;/http {/a \    passenger_root /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini;\n    passenger_ruby /usr/bin/ruby;&#x27;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$NGINX_CONF</span>&quot;</span> || { log_message <span class="hljs-string">&quot;ERROR&quot;</span> <span class="hljs-string">&quot;Fout bij aanpassen van <span class="hljs-variable">$NGINX_CONF</span>!&quot;</span>; <span class="hljs-built_in">exit</span> 1; }
+<span class="hljs-keyword">else</span>
+    log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Passenger is al geconfigureerd in nginx.&quot;</span>
+<span class="hljs-keyword">fi</span>
+
+<span class="hljs-comment"># Controleren op syntaxfouten in nginx-config</span>
+log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Controleren van nginx-config op fouten...&quot;</span>
+nginx -t &gt;&gt; <span class="hljs-string">&quot;<span class="hljs-variable">$LOGFILE</span>&quot;</span> 2&gt;&amp;1 || { log_message <span class="hljs-string">&quot;ERROR&quot;</span> <span class="hljs-string">&quot;Nginx-config bevat fouten! Controleer handmatig.&quot;</span>; <span class="hljs-built_in">exit</span> 1; }
+
+<span class="hljs-comment"># Starten van nginx</span>
+log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Nginx opnieuw starten...&quot;</span>
+<span class="hljs-keyword">if</span> systemctl restart nginx &gt;&gt; <span class="hljs-string">&quot;<span class="hljs-variable">$LOGFILE</span>&quot;</span> 2&gt;&amp;1; <span class="hljs-keyword">then</span>
+    log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Nginx is succesvol herstart.&quot;</span>
+<span class="hljs-keyword">else</span>
+    log_message <span class="hljs-string">&quot;ERROR&quot;</span> <span class="hljs-string">&quot;Nginx herstarten mislukt! Controleer de logbestanden.&quot;</span>
+    <span class="hljs-built_in">exit</span> 1
+<span class="hljs-keyword">fi</span>
+
+<span class="hljs-comment"># Controleren of nginx draait</span>
+log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Controleren of nginx draait...&quot;</span>
+<span class="hljs-keyword">if</span> systemctl is-active --quiet nginx; <span class="hljs-keyword">then</span>
+    log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Nginx draait correct.&quot;</span>
+<span class="hljs-keyword">else</span>
+    log_message <span class="hljs-string">&quot;ERROR&quot;</span> <span class="hljs-string">&quot;Nginx draait niet! Controleer de configuratie en services.&quot;</span>
+    <span class="hljs-built_in">exit</span> 1
+<span class="hljs-keyword">fi</span>
+
+<span class="hljs-comment"># Afronden</span>
+log_message <span class="hljs-string">&quot;INFO&quot;</span> <span class="hljs-string">&quot;Installatie en configuratie voltooid! Zie <span class="hljs-variable">$LOGFILE</span> voor details.&quot;</span>
+</code></pre>
+<p>Zie je hoe groot dit shell script is geworden? Tuurlijk kan het kleiner, maar deze beheerder is helemaal los gegaan op z’n shell-script skills.
+Maar gaat deze beheerder ook dit shell script of de handmatige configuratie stappen toepassen op servers die maar een dag, een uur of soms zelfs maar 1 enkele taak in een container in secondes afhandelen? Of wat gebeurd er als het script halverwege met een foutmelding stopt? De exit 1 zorgt ervoor dat het script er dan uitklapt. En belangrijker: het script kan waarschijnlijk niet opnieuw gestart worden, commando’s zullen dan fout gaan en het script zal opnieuw eruit klappen. Dus, we hebben iets anders nodig. Iets wat snel infrastructuur voor ons kan aanmaken en dit ook snel en herhaaldelijk kan aanpassen en we er zeker van zijn dat de uitkomst altijd hetzelfde is.</p>
+<h2 id="key-principes" tabindex="-1">Key Principes <a class="anchor" href="#key-principes" aria-hidden="true">#</a></h2>
+<h3 id="idempotency-%26-desired-state" tabindex="-1">Idempotency &amp; Desired State <a class="anchor" href="#idempotency-%26-desired-state" aria-hidden="true">#</a></h3>
+<p>Zoals net aangegeven willen we dat iedere wijziging die we doen dezelfde uitkomst heeft. Ook al voeren we een stuk code dus meerdere malen achter elkaar uit (op hetzelfde systeem of een ander), de uitkomst is telkens hetzelfde. In ons geval dus de Infrastructuur die we aan willen maken. Dit principe staat ook wel bekend als <strong>Idempotency.</strong></p>
+<p><img src="images/6367d2e41e92651aec97b41e_624dbf28ab88d1bfc29f4570_Idempotent-1.gif" alt="Idempotency"></p>
+<p>Nog weer even terug naar het shell script, je ziet daar allerlei condities om te checken of iets al bestaat etc. Dit is een vorm van idempotency maar het kan veel makkelijker. Waarom zou je al die checks niet door een tool zelf uit laten voeren?
+Echt idempotency wordt pas bereikt als je scripts of configuraties herhaaldelijk kan uitvoeren zonder dat er dan iets onverwachts of schadelijks voor het systeem gebeurd.</p>
+<h3 id="declarative" tabindex="-1">Declarative <a class="anchor" href="#declarative" aria-hidden="true">#</a></h3>
+<p>Idempotency kun je bereiken door een tool te gebruiken die werkt met een declaratieve aanpak. In plaats van stap voor stap te vertellen hoe je iets moet doen (zoals bij een script), beschrijf je in een declaratieve taal alleen de gewenste eindsituatie (desired state). De tool zorgt er vervolgens zelf voor dat de infrastructuur in die staat komt. Als dit niet lukt, geeft de tool een foutmelding en worden de wijzigingen niet doorgevoerd. Je hoeft je als beheerder dus niet bezig te houden met hoe iets wordt gedaan; dat regelt de tool.</p>
+<p>Dit vraagt om een andere manier van denken, vooral voor mensen die gewend zijn te werken met losse commando’s of imperatieve shell-scripts zoals in bovenstaand voorbeeld.
+Wat als we de commando’s uit oefening 1 en 2 op een declaratieve manier willen opschrijven? Stel we gebruiken Ansible als tool:</p>
+<pre><code class="hljs language-yaml"><span class="hljs-meta">---</span>
+<span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">all</span>
+  <span class="hljs-attr">tasks:</span>
+
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">the</span> <span class="hljs-string">passenger</span> <span class="hljs-string">apt</span> <span class="hljs-string">repository</span> <span class="hljs-string">is</span> <span class="hljs-string">added</span>
+    <span class="hljs-attr">apt_repository:</span>
+      <span class="hljs-string">state=present</span>
+      <span class="hljs-string">repo=&#x27;deb</span> <span class="hljs-string">https://oss-binaries.phusionpassenger.com/apt/passenger</span> <span class="hljs-string">raring</span> <span class="hljs-string">main&#x27;</span>
+
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">https</span> <span class="hljs-string">support</span> <span class="hljs-string">for</span> <span class="hljs-string">apt</span> <span class="hljs-string">is</span> <span class="hljs-string">installed</span>
+    <span class="hljs-attr">apt:</span>
+      <span class="hljs-attr">name:</span> {{ <span class="hljs-string">item</span> }}
+      <span class="hljs-string">state=present</span>
+      <span class="hljs-attr">with_items:</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-string">apt-transport-https</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-string">nginx-full</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-string">passenger</span>
+
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">the</span> <span class="hljs-string">nginx</span> <span class="hljs-string">configuration</span> <span class="hljs-string">file</span> <span class="hljs-string">is</span> <span class="hljs-string">set</span>
+    <span class="hljs-attr">copy:</span>
+      <span class="hljs-string">src=/app/config/nginx.conf</span>
+      <span class="hljs-string">dest=/etc/nginx/nginx.conf</span>
+
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">nginx</span> <span class="hljs-string">is</span> <span class="hljs-string">running</span>
+    <span class="hljs-attr">service:</span>
+      <span class="hljs-string">name=nginx</span>
+      <span class="hljs-string">state=started</span>
+      <span class="hljs-string">enabled=true</span>
+</code></pre>
+<p>Zie je dat het haast een leesbaar draaiboek is geworden? We programmeren geen commando’s meer, maar geven in een draaiboekstijl aan wat er moet gebeuren.</p>
+<h3 id="immutability" tabindex="-1">Immutability <a class="anchor" href="#immutability" aria-hidden="true">#</a></h3>
+<p>Wanneer er gedurende een bepaalde periode allerlei wijzigingen in de infrastructuur worden aangebracht worden deze vaak niet over alle systemen tegelijk toegepast. Er onstaat dan Configuration Drift. Omgevingen gaan van elkaar afwijken op manieren die niet gemakkelijk reproduceerbaar zijn (denk maar aan handmatige commando’s, versie/hardware verschillen). Configuration Drift zorgt voor een lastig beheersbare infrastructuur.</p>
+<p>Een oplossing voor Configuration Drift is <strong>immutable infrastructure</strong>. Immutable betekent in dit geval dat in plaats van een bestaande infrastructuur te wijzigen deze vervangen zal worden door een nieuwe. Dit is natuurlijk vooral van toepassing op gevirtualiseerde machines of cloudinstanties.</p>
+<p>Immutable infrastructuur maakt ook schaalbaarheid mogelijk in (cloud)omgevingen. Het is makkelijk een tweede machine of container aan te maken omdat er geen handmatige wijzigen op de andere zijn doorgevoerd. Je kunt in diagram #2 hieronder zien dat voor veranderlijke (non-immutable) infrastructuur v2 van de applicatie wordt ingezet op dezelfde servers als v1, maar bij immutable infrastructuur worden er nieuwe VM’s met v2 van applicatie aangemaakt.</p>
+<p><img src="images/6367d2e41e9265474197b421_624dbf281e82f4d787a4d90a_Mutable-2.gif" alt="Immutability"></p>
+<h3 id="versiebeheer" tabindex="-1">Versiebeheer <a class="anchor" href="#versiebeheer" aria-hidden="true">#</a></h3>
+<p>Als we alle methodes (declarative infrastructure, Immutability en Idempotency) combineren merk je dat je eigenlijk meer bezig bent met code schrijven dan het handmatig beheren van servers. We kunnen het ontwikkelen van infrastructuur dus vergelijken met ‘normale’ softwareontwikkeling waarbij versiebeheer de normaalste zaak van de wereld is. Versie 2.0 van een applicatie heeft bijvoorbeeld meer functies dan 1.0. Ditzelfde idee kun je nu gaan toepassen op infrastructure. Het moet bijvoorbeeld ook mogelijk zijn om (snel) terug te kunnen naar versie 1.0 mocht 2.0 ondanks alle testen niet goed werken.</p>
+<p>Onze infrastructuurcode moeten we dus op gaan slaan in een versiebeheersysteem. In dit vak gebruiken we de GitLab omgeving van Windesheim. (<a href="https://gitlab.windesheim.nl">https://gitlab.windesheim.nl</a>). Zorg dat je hier een account hebt waar je een repository kunt aanmaken.</p>
+<p>Zie ook onderstaande YouTube video van HashiCorp:</p>
+<p><a href="https://youtu.be/OPDJXicUBuo"><img src="images/hqdefault.jpg" alt="YouTube"></a></p>
+<h3 id="lab" tabindex="-1">LAB <a class="anchor" href="#lab" aria-hidden="true">#</a></h3>
+<h5 id="ontwikkelomgeving-(opdracht-1)" tabindex="-1">Ontwikkelomgeving (opdracht 1) <a class="anchor" href="#ontwikkelomgeving-(opdracht-1)" aria-hidden="true">#</a></h5>
+<ul>
+<li>VPN naar Skylab pfsense is vereist.</li>
+<li>Ontwikkel en commando omgeving (Ubuntu VM) in Skylab</li>
+<li>VSCode of andere editor op lokale machine</li>
+<li>We werken niet met de remote console van Skylab maar alleen via een Terminal. Dit is een knock out voor je beoordeling!</li>
+</ul>
+<h5 id="esxi-(opdracht-2)" tabindex="-1">ESXi (opdracht 2) <a class="anchor" href="#esxi-(opdracht-2)" aria-hidden="true">#</a></h5>
+<p>Om de opdrachten uit te kunnen voeren heb je ook een ESXi omgeving nodig op Skylab. Deploy deze met default instellingen, 16GB ram + 50gb extra storage disk toekennen</p>
+<p><img src="images/esxi.png" alt="ESXi"></p>
+<p>Log daarna in op de ESXi console met username <strong>root</strong> en wachtwoord <strong>Welkom01!</strong>
+Daarna moet SSH toegang aan worden gezet via <strong>Actions&gt;Services&gt;SSH</strong></p>
+<p><img src="images/esxi_enable_ssh.png" alt="ESXi"></p>
+<p>Via <strong>Manage-&gt;Services</strong> kun je SSH altijd laten opstarten, zodat je dit niet elke keer hoeft te doen.</p>
+<p><img src="images/esxi_ssh.png" alt="SSH"></p>
+<p>Maak als laatste een nieuwe datastore aan op je toegevoegde disk in ESXI. Noem deze <strong>datastore1</strong></p>
+<h5 id="esxi-(opdracht-3)" tabindex="-1">ESXi (opdracht 3) <a class="anchor" href="#esxi-(opdracht-3)" aria-hidden="true">#</a></h5>
+<p>Als ESXi gedeployed is voer je vanaf je ontwikkel omgeving het volgende commando uit:</p>
+<pre><code class="hljs language-bash">ansible -i <span class="hljs-string">&#x27;IPADRESESXI,&#x27;</span> -m ping all -u root -k
+</code></pre>
+<p>Een screenshot van de ping lever je in op Brightspace.</p>
+
   </div>
 </body>
 </html>
