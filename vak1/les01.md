@@ -14,6 +14,7 @@ Inhoud:
 - Alle losse opdrachten bij elkaar vormt voor je eindopdracht
 - Alle code moet in Gitlab (gitlab.windesheim.nl)
 - Bij elke week schrijf je een README.md wat je gedaan hebt en hoe de code werkt.
+- Bla
 
 ## Introductie Infrastructure as Code
 
