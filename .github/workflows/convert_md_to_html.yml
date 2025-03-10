@@ -34,8 +34,22 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install -g markdown-it markdown-it-highlightjs markdown-it-anchor markdown-it-toc-done-right
-          npm install -g highlight.js
+          # Create package.json
+          echo '{
+            "name": "md-to-html-converter",
+            "version": "1.0.0",
+            "description": "Converts Markdown to HTML",
+            "private": true,
+            "dependencies": {
+              "markdown-it": "^13.0.1",
+              "highlight.js": "^11.7.0",
+              "markdown-it-anchor": "^8.6.7",
+              "markdown-it-toc-done-right": "^4.2.0"
+            }
+          }' > package.json
+
+          # Install dependencies locally
+          npm install
 
       - name: Create HTML conversion script
         run: |
@@ -270,7 +284,7 @@ jobs:
           cd ..
 
           # Convert all Markdown files
-          node convert.js source docs
+          NODE_PATH=$(pwd)/node_modules node convert.js source docs
 
           # Create an index.html file in the docs directory
           cd docs
