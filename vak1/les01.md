@@ -11,8 +11,6 @@ Inhoud:
 
 ## Introductie vak IAC
 
-- 7 weken
-- 3 uur per keer op je rooster
 - Elke week een thema
 - Ruimte om aan opdrachten te werken
 - Alle losse opdrachten bij elkaar vormt voor je eindopdracht

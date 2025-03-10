@@ -26,8 +26,8 @@ jobs:
       - name: Install dependencies
         run: |
           npm init -y
-          npm install markdown-it markdown-it-highlightjs highlightjs
-          npm install catppuccin-highlightjs
+          npm install markdown-it markdown-it-highlightjs highlight.js
+          # Create custom catppuccin theme for highlight.js
 
       - name: Create conversion script
         run: |
@@ -43,11 +43,8 @@ jobs:
             linkify: true,
             typographer: true
           }).use(highlightjs, {
-            register: {
-              catppuccin: require('catppuccin-highlightjs/mocha')
-            },
             auto: true,
-            theme: 'catppuccin' 
+            inline: true
           });
 
           // HTML template with Catppuccin styling
@@ -198,7 +195,8 @@ jobs:
               
               /* Add more highlight.js theme overrides as needed */
             </style>
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/catppuccin-highlightjs/css/catppuccin-mocha.css">
+            <!-- Highlight.js and custom Catppuccin styling is applied inline -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
           </head>
           <body>
             ${content}
@@ -331,7 +329,7 @@ jobs:
           git commit -m "Convert Markdown to HTML from branch ${GITHUB_REF#refs/heads/}"
 
           # Use GitHub token for authentication
-          git remote set-url origin https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}
+          git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}
           git push origin docs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
