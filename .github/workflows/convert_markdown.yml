@@ -27,7 +27,7 @@ jobs:
         run: |
           npm init -y
           npm install markdown-it markdown-it-highlightjs highlight.js
-          # Create custom catppuccin theme for highlight.js
+          npm install markdown-it-anchor markdown-it-toc-done-right
 
       - name: Create conversion script
         run: |
@@ -36,19 +36,38 @@ jobs:
           const path = require('path');
           const MarkdownIt = require('markdown-it');
           const highlightjs = require('markdown-it-highlightjs');
+          const anchor = require('markdown-it-anchor');
+          const toc = require('markdown-it-toc-done-right');
 
-          // Initialize markdown parser with highlightjs
+          // Initialize markdown parser with plugins
           const md = new MarkdownIt({
             html: true,
             linkify: true,
             typographer: true
-          }).use(highlightjs, {
+          })
+          .use(highlightjs, {
             auto: true,
             inline: true
+          })
+          .use(anchor, {
+            permalink: anchor.permalink.ariaHidden({
+              placement: 'after',
+              class: 'anchor',
+              symbol: '#',
+              ariaHidden: true,
+            }),
+            level: [1, 2, 3, 4, 5, 6]
+          })
+          .use(toc, {
+            level: [2, 3],
+            listType: 'ul',
+            listClass: 'toc-list',
+            itemClass: 'toc-item',
+            linkClass: 'toc-link'
           });
 
-          // HTML template with Catppuccin Latte styling
-          const htmlTemplate = (content, title) => `
+          // HTML template with GitHub-like styling
+          const htmlTemplate = (content, title, tocContent) => `
           <!DOCTYPE html>
           <html lang="en">
           <head>
@@ -57,203 +76,474 @@ jobs:
             <title>${title}</title>
             <style>
               :root {
-                /* Catppuccin Latte colors */
-                --rosewater: #dc8a78;
-                --flamingo: #dd7878;
-                --pink: #ea76cb;
-                --mauve: #8839ef;
-                --red: #d20f39;
-                --maroon: #e64553;
-                --peach: #fe640b;
-                --yellow: #df8e1d;
-                --green: #40a02b;
-                --teal: #179299;
-                --sky: #04a5e5;
-                --sapphire: #209fb5;
-                --blue: #1e66f5;
-                --lavender: #7287fd;
-                --text: #4c4f69;
-                --subtext1: #5c5f77;
-                --subtext0: #6c6f85;
-                --overlay2: #7c7f93;
-                --overlay1: #8c8fa1;
-                --overlay0: #9ca0b0;
-                --surface2: #acb0be;
-                --surface1: #bcc0cc;
-                --surface0: #ccd0da;
-                --base: #ffffff;
-                --mantle: #f5f5f5;
-                --crust: #eff1f5;
+                /* GitHub Light Variables */
+                --color-canvas-default: #ffffff;
+                --color-canvas-subtle: #f6f8fa;
+                --color-border-default: #d0d7de;
+                --color-border-muted: #d8dee4;
+                --color-neutral-muted: rgba(175, 184, 193, 0.2);
+                --color-accent-fg: #0969da;
+                --color-accent-emphasis: #0969da;
+                --color-danger-fg: #cf222e;
+                --color-fg-default: #24292f;
+                --color-fg-muted: #57606a;
+                --color-fg-subtle: #6e7781;
+                --color-success-fg: #1a7f37;
+                --color-attention-fg: #9a6700;
+                --color-header-bg: #24292f;
+                --color-header-fg: #ffffff;
+                --color-header-logo: #ffffff;
+                --color-header-search-bg: #24292f;
+                --color-header-search-border: #57606a;
+                --color-code-block-bg: #f6f8fa;
+                --color-code-block-border: #d0d7de;
               }
               
               body {
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-                line-height: 1.6;
-                color: var(--text);
-                background-color: var(--base);
-                max-width: 900px;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+                line-height: 1.5;
+                color: var(--color-fg-default);
+                background-color: var(--color-canvas-default);
+                max-width: 1012px;
                 margin: 0 auto;
-                padding: 2rem;
+                padding: 32px;
+                font-size: 16px;
               }
               
+              /* Layout */
+              .markdown-body {
+                position: relative;
+                margin-bottom: 16px;
+                padding: 32px;
+                border: 1px solid var(--color-border-default);
+                border-radius: 6px;
+                background-color: var(--color-canvas-default);
+              }
+              
+              /* Header & Navigation */
+              .header {
+                display: flex;
+                align-items: center;
+                margin-bottom: 16px;
+                padding: 16px;
+                background-color: var(--color-canvas-subtle);
+                border-radius: 6px;
+                border: 1px solid var(--color-border-default);
+              }
+              
+              .repo-name {
+                font-weight: 600;
+                font-size: 18px;
+                color: var(--color-fg-default);
+                text-decoration: none;
+              }
+              
+              .repo-name:hover {
+                text-decoration: underline;
+              }
+
+              /* Table of Contents */
+              .toc-container {
+                margin-bottom: 32px;
+                padding: 16px;
+                background-color: var(--color-canvas-subtle);
+                border: 1px solid var(--color-border-default);
+                border-radius: 6px;
+              }
+              
+              .toc-header {
+                font-size: 16px;
+                font-weight: 600;
+                margin-top: 0;
+                margin-bottom: 8px;
+              }
+              
+              .toc-list {
+                padding-left: 20px;
+                margin-bottom: 0;
+              }
+              
+              .toc-item {
+                margin: 4px 0;
+              }
+              
+              .toc-link {
+                color: var(--color-accent-fg);
+                text-decoration: none;
+              }
+              
+              .toc-link:hover {
+                text-decoration: underline;
+              }
+              
+              /* Typography */
               h1, h2, h3, h4, h5, h6 {
-                color: var(--lavender);
-                margin-top: 2rem;
-                margin-bottom: 1rem;
+                margin-top: 24px;
+                margin-bottom: 16px;
+                font-weight: 600;
+                line-height: 1.25;
+                padding-bottom: 0.3em;
               }
               
               h1 {
-                font-size: 2.5rem;
-                border-bottom: 2px solid var(--surface0);
-                padding-bottom: 0.5rem;
+                font-size: 2em;
+                margin-top: 0;
+                border-bottom: 1px solid var(--color-border-muted);
               }
               
               h2 {
-                font-size: 2rem;
-                border-bottom: 1px solid var(--surface0);
-                padding-bottom: 0.3rem;
+                font-size: 1.5em;
+                border-bottom: 1px solid var(--color-border-muted);
+              }
+              
+              h3 {
+                font-size: 1.25em;
+              }
+              
+              h4 {
+                font-size: 1em;
+              }
+              
+              h5 {
+                font-size: 0.875em;
+              }
+              
+              h6 {
+                font-size: 0.85em;
+                color: var(--color-fg-muted);
               }
               
               a {
-                color: var(--blue);
+                color: var(--color-accent-fg);
                 text-decoration: none;
               }
               
               a:hover {
                 text-decoration: underline;
-                color: var(--sky);
               }
               
-              /* Code blocks - Catppuccin Mocha theme */
-              pre {
-                background-color: #1e1e2e; /* Mocha base */
-                padding: 1rem;
-                border-radius: 5px;
-                overflow-x: auto;
+              .anchor {
+                float: left;
+                padding-right: 4px;
+                margin-left: -20px;
+                line-height: 1;
+                display: inline-block;
+                color: var(--color-fg-muted);
+                opacity: 0;
+                text-decoration: none;
               }
               
-              pre code {
-                background-color: transparent;
-                padding: 0;
-                font-size: 0.9rem;
-                color: #cdd6f4; /* Mocha text */
+              h1:hover .anchor,
+              h2:hover .anchor,
+              h3:hover .anchor,
+              h4:hover .anchor,
+              h5:hover .anchor,
+              h6:hover .anchor {
+                opacity: 1;
               }
               
-              code {
-                font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
-                background-color: var(--surface0);
-                padding: 0.2rem 0.4rem;
-                border-radius: 3px;
-                font-size: 0.9em;
-                color: var(--subtext0);
+              /* Text elements */
+              p {
+                margin-top: 0;
+                margin-bottom: 16px;
               }
               
               blockquote {
-                border-left: 4px solid var(--mauve);
-                padding-left: 1rem;
-                margin-left: 0;
-                color: var(--subtext0);
+                padding: 0 1em;
+                color: var(--color-fg-muted);
+                border-left: 0.25em solid var(--color-border-default);
+                margin: 0 0 16px 0;
               }
               
+              ul, ol {
+                padding-left: 2em;
+                margin-top: 0;
+                margin-bottom: 16px;
+              }
+              
+              li {
+                margin-top: 0.25em;
+              }
+              
+              li + li {
+                margin-top: 0.25em;
+              }
+              
+              /* Code */
+              code {
+                font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+                padding: 0.2em 0.4em;
+                margin: 0;
+                font-size: 85%;
+                background-color: var(--color-neutral-muted);
+                border-radius: 6px;
+              }
+              
+              pre {
+                font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+                padding: 16px;
+                overflow: auto;
+                font-size: 85%;
+                line-height: 1.45;
+                background-color: var(--color-code-block-bg);
+                border-radius: 6px;
+                margin-top: 0;
+                margin-bottom: 16px;
+                word-wrap: normal;
+                border: 1px solid var(--color-code-block-border);
+              }
+              
+              pre code {
+                font-size: 100%;
+                padding: 0;
+                margin: 0;
+                background-color: transparent;
+                border: 0;
+                white-space: pre;
+                word-break: normal;
+              }
+              
+              /* Tables */
+              table {
+                display: block;
+                width: 100%;
+                width: max-content;
+                max-width: 100%;
+                overflow: auto;
+                border-spacing: 0;
+                border-collapse: collapse;
+                margin-top: 0;
+                margin-bottom: 16px;
+              }
+              
+              table th {
+                font-weight: 600;
+              }
+              
+              table th,
+              table td {
+                padding: 6px 13px;
+                border: 1px solid var(--color-border-default);
+              }
+              
+              table tr {
+                background-color: var(--color-canvas-default);
+                border-top: 1px solid var(--color-border-muted);
+              }
+              
+              table tr:nth-child(2n) {
+                background-color: var(--color-canvas-subtle);
+              }
+              
+              /* Images */
               img {
                 max-width: 100%;
-                height: auto;
+                box-sizing: content-box;
+                background-color: var(--color-canvas-default);
+                border-radius: 6px;
               }
               
-              table {
-                border-collapse: collapse;
-                width: 100%;
-                margin: 2rem 0;
-              }
-              
-              table, th, td {
-                border: 1px solid var(--surface2);
-              }
-              
-              th, td {
-                padding: 0.5rem;
-                text-align: left;
-              }
-              
-              th {
-                background-color: var(--surface0);
-              }
-              
-              tr:nth-child(even) {
-                background-color: var(--surface0);
-              }
-              
+              /* Markdown extras */
               hr {
-                border: none;
-                height: 1px;
-                background-color: var(--surface2);
-                margin: 2rem 0;
+                height: 0.25em;
+                padding: 0;
+                margin: 24px 0;
+                background-color: var(--color-border-default);
+                border: 0;
               }
               
-              .hljs {
-                background: #1e1e2e; /* Mocha base */
-                color: #cdd6f4; /* Mocha text */
-                border-radius: 5px;
-              }
-              
-              /* Highlight.js Catppuccin Mocha theme */
-              .hljs-comment,
-              .hljs-quote {
-                color: #9399b2; /* Mocha overlay2 */
-                font-style: italic;
-              }
-              
+              /* GitHub syntax highlighting */
+              .hljs-doctag,
               .hljs-keyword,
-              .hljs-selector-tag {
-                color: #cba6f7; /* Mocha mauve */
-              }
-              
-              .hljs-string,
-              .hljs-attribute,
-              .hljs-symbol,
-              .hljs-bullet,
-              .hljs-template-tag {
-                color: #a6e3a1; /* Mocha green */
-              }
-              
-              .hljs-name,
-              .hljs-function,
-              .hljs-subst {
-                color: #89b4fa; /* Mocha blue */
-              }
-              
+              .hljs-meta .hljs-keyword,
+              .hljs-template-tag,
+              .hljs-template-variable,
               .hljs-type,
-              .hljs-built_in,
-              .hljs-params {
-                color: #f9e2af; /* Mocha yellow */
-              }
-              
-              .hljs-literal,
-              .hljs-number {
-                color: #fab387; /* Mocha peach */
+              .hljs-variable.language_ {
+                color: #d73a49;
               }
               
               .hljs-title,
-              .hljs-class .hljs-title {
-                color: #74c7ec; /* Mocha sapphire */
+              .hljs-title.class_,
+              .hljs-title.class_.inherited__,
+              .hljs-title.function_ {
+                color: #6f42c1;
               }
               
-              .hljs-tag,
+              .hljs-attr,
+              .hljs-attribute,
+              .hljs-literal,
+              .hljs-meta,
+              .hljs-number,
+              .hljs-operator,
+              .hljs-selector-attr,
+              .hljs-selector-class,
               .hljs-selector-id,
-              .hljs-selector-class {
-                color: #f38ba8; /* Mocha red */
+              .hljs-variable {
+                color: #005cc5;
               }
               
-              /* Add more highlight.js theme overrides as needed */
+              .hljs-meta .hljs-string,
+              .hljs-regexp,
+              .hljs-string {
+                color: #032f62;
+              }
+              
+              .hljs-built_in,
+              .hljs-symbol {
+                color: #e36209;
+              }
+              
+              .hljs-comment,
+              .hljs-code,
+              .hljs-formula {
+                color: #6a737d;
+              }
+              
+              .hljs-name,
+              .hljs-quote,
+              .hljs-selector-tag,
+              .hljs-selector-pseudo {
+                color: #22863a;
+              }
+              
+              .hljs-deletion {
+                color: #b31d28;
+                background-color: #ffeef0;
+              }
+              
+              .hljs-addition {
+                color: #22863a;
+                background-color: #f0fff4;
+              }
+
+              /* For dark mode - if needed, uncomment and adjust
+              @media (prefers-color-scheme: dark) {
+                :root {
+                  --color-canvas-default: #0d1117;
+                  --color-canvas-subtle: #161b22;
+                  --color-border-default: #30363d;
+                  --color-border-muted: #21262d;
+                  --color-neutral-muted: rgba(110, 118, 129, 0.4);
+                  --color-accent-fg: #58a6ff;
+                  --color-accent-emphasis: #1f6feb;
+                  --color-danger-fg: #f85149;
+                  --color-fg-default: #c9d1d9;
+                  --color-fg-muted: #8b949e;
+                  --color-fg-subtle: #6e7681;
+                  --color-success-fg: #3fb950;
+                  --color-attention-fg: #d29922;
+                  --color-code-block-bg: #161b22;
+                  --color-code-block-border: #30363d;
+                }
+
+                .hljs-doctag,
+                .hljs-keyword,
+                .hljs-meta .hljs-keyword,
+                .hljs-template-tag,
+                .hljs-template-variable,
+                .hljs-type,
+                .hljs-variable.language_ {
+                  color: #ff7b72;
+                }
+                
+                .hljs-title,
+                .hljs-title.class_,
+                .hljs-title.class_.inherited__,
+                .hljs-title.function_ {
+                  color: #d2a8ff;
+                }
+                
+                .hljs-attr,
+                .hljs-attribute,
+                .hljs-literal,
+                .hljs-meta,
+                .hljs-number,
+                .hljs-operator,
+                .hljs-selector-attr,
+                .hljs-selector-class,
+                .hljs-selector-id,
+                .hljs-variable {
+                  color: #79c0ff;
+                }
+                
+                .hljs-meta .hljs-string,
+                .hljs-regexp,
+                .hljs-string {
+                  color: #a5d6ff;
+                }
+                
+                .hljs-built_in,
+                .hljs-symbol {
+                  color: #ffa657;
+                }
+                
+                .hljs-comment,
+                .hljs-code,
+                .hljs-formula {
+                  color: #8b949e;
+                }
+                
+                .hljs-name,
+                .hljs-quote,
+                .hljs-selector-tag,
+                .hljs-selector-pseudo {
+                  color: #7ee787;
+                }
+                
+                .hljs-deletion {
+                  color: #ffa198;
+                  background-color: #490202;
+                }
+                
+                .hljs-addition {
+                  color: #aff5b4;
+                  background-color: #033a16;
+                }
+              }
+              */
             </style>
-            <!-- Remove external syntax highlighting theme as we're defining our own -->
-            <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"> -->
           </head>
           <body>
-            ${content}
+            <div class="header">
+              <a href="../" class="repo-name">Back to Repository</a>
+            </div>
+            
+            ${tocContent ? `
+            <div class="toc-container">
+              <h3 class="toc-header">Table of Contents</h3>
+              ${tocContent}
+            </div>
+            ` : ''}
+            
+            <div class="markdown-body">
+              ${content}
+            </div>
           </body>
           </html>
           `;
+
+          // Function to fix image paths in HTML content
+          function fixImagePaths(html, mdFilePath, outputPath) {
+            // Get the relative directory of the markdown file
+            const mdDir = path.dirname(mdFilePath);
+            const outputDir = path.dirname(outputPath);
+            
+            // Fix relative image paths
+            // Look for <img src="..."> tags and adjust the paths
+            return html.replace(/<img([^>]*)src="([^"]+)"([^>]*)>/g, (match, before, src, after) => {
+              // Skip absolute URLs or data URLs
+              if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
+                return match;
+              }
+              
+              // Compute the correct relative path
+              const absoluteSrc = path.resolve(mdDir, src);
+              const relativeToOutput = path.relative(outputDir, absoluteSrc);
+              
+              return `<img${before}src="${relativeToOutput}"${after}>`;
+            });
+          }
 
           async function findMarkdownFiles(directory) {
             const fileList = [];
@@ -284,8 +574,30 @@ jobs:
               // Read markdown content
               const mdContent = await fs.readFile(mdFilePath, 'utf8');
               
+              // Get title from first heading or filename
+              let title = path.basename(mdFilePath, '.md');
+              const headingMatch = mdContent.match(/^#\s+(.+)$/m);
+              if (headingMatch) {
+                title = headingMatch[1];
+              }
+              
+              // Generate TOC
+              let tocContent = '';
+              const contentWithTocPlaceholder = mdContent.includes('[TOC]') 
+                ? mdContent 
+                : '[TOC]\n\n' + mdContent;
+              
               // Convert markdown to HTML
-              const htmlContent = md.render(mdContent);
+              const htmlContent = md.render(contentWithTocPlaceholder);
+              
+              // Extract TOC
+              const tocMatch = htmlContent.match(/<nav class="table-of-contents">([\s\S]*?)<\/nav>/);
+              if (tocMatch) {
+                tocContent = tocMatch[1];
+              }
+              
+              // Remove the TOC placeholder from the content
+              let processedContent = htmlContent.replace(/<nav class="table-of-contents">[\s\S]*?<\/nav>/, '');
               
               // Determine file paths
               const relativePath = path.relative('.', mdFilePath);
@@ -294,15 +606,11 @@ jobs:
               // Create directory structure if it doesn't exist
               await fs.mkdir(path.dirname(outputPath), { recursive: true });
               
-              // Get title from first heading or filename
-              let title = path.basename(mdFilePath, '.md');
-              const headingMatch = mdContent.match(/^#\s+(.+)$/m);
-              if (headingMatch) {
-                title = headingMatch[1];
-              }
+              // Fix image paths
+              processedContent = fixImagePaths(processedContent, mdFilePath, outputPath);
               
-              // Write HTML file with fixed image paths
-              await fs.writeFile(outputPath, htmlTemplate(fixedHtmlContent, title));
+              // Write HTML file
+              await fs.writeFile(outputPath, htmlTemplate(processedContent, title, tocContent));
               
               console.log(`Converted ${mdFilePath} to ${outputPath}`);
             } catch (error) {
