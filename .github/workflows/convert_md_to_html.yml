@@ -7,415 +7,256 @@ on:
       - "!docs"
     paths:
       - "**.md"
-  workflow_dispatch:
 
 jobs:
   convert-markdown:
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/docs'
+
     steps:
-      - name: Checkout source branch
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          path: source
           fetch-depth: 0
 
-      - name: Checkout docs branch
-        uses: actions/checkout@v3
-        with:
-          ref: docs
-          path: docs
-          fetch-depth: 1
-
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
 
       - name: Install dependencies
         run: |
-          # Create package.json
-          echo '{
-            "name": "md-to-html-converter",
-            "version": "1.0.0",
-            "description": "Converts Markdown to HTML",
-            "private": true,
-            "dependencies": {
-              "markdown-it": "^13.0.1",
-              "highlight.js": "^11.7.0",
-              "markdown-it-anchor": "^8.6.7",
-              "markdown-it-toc-done-right": "^4.2.0"
-            }
-          }' > package.json
+          npm init -y
+          npm install markdown-it markdown-it-prism prismjs cross-env
+          npm install shiki catppuccin-shiki
 
-          # Install dependencies locally
-          npm install
-
-      - name: Create HTML conversion script
+      - name: Create conversion script
         run: |
-          cat > convert.js << 'EOF'
+          cat > convert.js << 'EOL'
           const fs = require('fs');
           const path = require('path');
-          const MarkdownIt = require('markdown-it');
-          const hljs = require('highlight.js');
-          const anchor = require('markdown-it-anchor');
-          const toc = require('markdown-it-toc-done-right');
+          const markdownit = require('markdown-it');
+          const prism = require('markdown-it-prism');
+          const shiki = require('shiki');
+          const { getTheme } = require('catppuccin-shiki');
 
-          // Catppuccin-like CSS
-          const catppuccinCSS = `
-          :root {
-            --background: #1E1E2E;
-            --text: #CDD6F4;
-            --header: #CBA6F7;
-            --link: #89DCEB;
-            --code-bg: #313244;
-            --border: #45475A;
-            --selection: #585B70;
-            --accent: #F5C2E7;
-            --red: #F38BA8;
-            --green: #A6E3A1;
-            --yellow: #F9E2AF;
-            --blue: #89B4FA;
-            --purple: #CBA6F7;
-            --teal: #94E2D5;
-          }
-
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-            line-height: 1.6;
-            color: var(--text);
-            background-color: var(--background);
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-
-          h1, h2, h3, h4, h5, h6 {
-            color: var(--header);
-            margin-top: 1.5em;
-            margin-bottom: 0.5em;
-          }
-
-          a {
-            color: var(--link);
-            text-decoration: none;
-          }
-
-          a:hover {
-            text-decoration: underline;
-          }
-
-          pre {
-            padding: 16px;
-            overflow: auto;
-            background-color: var(--code-bg);
-            border-radius: 6px;
-          }
-
-          code {
-            font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-            padding: 0.2em 0.4em;
-            background-color: var(--code-bg);
-            border-radius: 3px;
-          }
-
-          pre code {
-            padding: 0;
-          }
-
-          blockquote {
-            border-left: 4px solid var(--selection);
-            padding-left: 16px;
-            margin-left: 0;
-            color: var(--text);
-            opacity: 0.8;
-          }
-
-          table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-bottom: 16px;
-          }
-
-          table, th, td {
-            border: 1px solid var(--border);
-          }
-
-          th, td {
-            padding: 8px 12px;
-          }
-
-          th {
-            background-color: var(--code-bg);
-          }
-
-          hr {
-            border: none;
-            height: 1px;
-            background-color: var(--border);
-            margin: 24px 0;
-          }
-
-          .toc {
-            background-color: var(--code-bg);
-            padding: 16px;
-            border-radius: 6px;
-            margin-bottom: 24px;
-          }
-
-          .toc ul {
-            padding-left: 20px;
-          }
-
-          .toc a {
-            color: var(--link);
-          }
-
-          /* Catppuccin-inspired syntax highlighting */
-          .hljs-comment, .hljs-quote { color: #6C7086; }
-          .hljs-variable, .hljs-template-variable, .hljs-attribute, .hljs-tag, .hljs-regexp, .hljs-link, .hljs-name, .hljs-selector-id, .hljs-selector-class { color: var(--red); }
-          .hljs-number, .hljs-meta, .hljs-built_in, .hljs-builtin-name, .hljs-literal, .hljs-type, .hljs-params { color: var(--yellow); }
-          .hljs-string, .hljs-symbol, .hljs-bullet { color: var(--green); }
-          .hljs-title, .hljs-section { color: var(--blue); }
-          .hljs-keyword, .hljs-selector-tag { color: var(--purple); }
-          .hljs-emphasis { font-style: italic; }
-          .hljs-strong { font-weight: bold; }
-          `;
-
-          // Initialize markdown-it with plugins
-          const md = new MarkdownIt({
-            html: true,
-            linkify: true,
-            typographer: true,
-            highlight: function (str, lang) {
-              if (lang && hljs.getLanguage(lang)) {
+          async function main() {
+            // Get all changed markdown files
+            const changedFiles = process.env.CHANGED_FILES.split(' ').filter(file => file.endsWith('.md'));
+            
+            // Initialize markdown-it with catppuccin theme
+            const highlighter = await shiki.getHighlighter({
+              theme: getTheme('mocha') // Catppuccin mocha theme
+            });
+            
+            const md = markdownit({
+              html: true,
+              linkify: true,
+              typographer: true,
+              highlight: (code, lang) => {
                 try {
-                  return hljs.highlight(str, { language: lang }).value;
-                } catch (error) {}
-              }
-              return '';  // use external default escaping
-            }
-          }).use(anchor, {
-            permalink: anchor.permalink.linkInsideHeader({
-              symbol: '#',
-              renderAttrs: () => ({ 'aria-hidden': 'true' })
-            })
-          }).use(toc, {
-            containerClass: 'toc',
-            listType: 'ul'
-          });
-
-          // Function to convert markdown to HTML
-          function convertToHtml(mdContent, filePath) {
-            // Add TOC marker if not present and file is not README
-            if (!mdContent.includes('[[toc]]') && !filePath.includes('README')) {
-              mdContent = '[[toc]]\n\n' + mdContent;
-            }
-            
-            // Convert markdown to HTML
-            let htmlContent = md.render(mdContent);
-            
-            // Create complete HTML document
-            return `<!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>${path.basename(filePath, '.md')}</title>
-            <style>
-              ${catppuccinCSS}
-            </style>
-          </head>
-          <body>
-            ${htmlContent}
-          </body>
-          </html>`;
-          }
-
-          // Function to process directory recursively
-          function processDirectory(sourceDir, targetDir, baseSourceDir, baseTargetDir) {
-            // Create target directory if it doesn't exist
-            if (!fs.existsSync(targetDir)) {
-              fs.mkdirSync(targetDir, { recursive: true });
-            }
-            
-            // Read all files in the current directory
-            const items = fs.readdirSync(sourceDir);
-            
-            items.forEach(item => {
-              const sourcePath = path.join(sourceDir, item);
-              const stats = fs.statSync(sourcePath);
-              
-              if (stats.isDirectory()) {
-                // Recursively process subdirectories
-                const targetSubDir = path.join(targetDir, item);
-                processDirectory(sourcePath, targetSubDir, baseSourceDir, baseTargetDir);
-              } else if (stats.isFile() && item.endsWith('.md')) {
-                // Convert markdown files to HTML
-                const relPath = path.relative(baseSourceDir, sourcePath);
-                console.log(`Processing: ${relPath}`);
-                
-                const mdContent = fs.readFileSync(sourcePath, 'utf8');
-                const htmlContent = convertToHtml(mdContent, relPath);
-                
-                // Calculate target path, replacing .md with .html
-                const targetPath = path.join(targetDir, item.replace('.md', '.html'));
-                fs.writeFileSync(targetPath, htmlContent);
-                console.log(`Created HTML: ${path.relative(baseTargetDir, targetPath)}`);
+                  return highlighter.codeToHtml(code, { lang });
+                } catch (e) {
+                  console.error(`Failed to highlight for language: ${lang}`);
+                  return code;
+                }
               }
             });
-          }
-
-          // Main execution
-          const sourceDir = process.argv[2];
-          const targetDir = process.argv[3];
-
-          console.log(`Converting Markdown files from ${sourceDir} to HTML in ${targetDir}`);
-          processDirectory(sourceDir, targetDir, sourceDir, targetDir);
-          console.log('Conversion complete');
-          EOF
-
-      - name: Convert markdown to HTML
-        run: |
-          # Create an index of all Markdown files
-          echo "Creating index of all Markdown files..."
-          cd source
-          MARKDOWN_FILES=$(find . -name "*.md" | sort)
-          cd ..
-
-          # Convert all Markdown files
-          NODE_PATH=$(pwd)/node_modules node convert.js source docs
-
-          # Create an index.html file in the docs directory
-          cd docs
-          cat > index.html << EOF
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
+            
+            // Create HTML template
+            const htmlTemplate = (title, content) => `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Documentation Index</title>
+              <title>${title}</title>
               <style>
-                  :root {
-                      --background: #1E1E2E;
-                      --text: #CDD6F4;
-                      --header: #CBA6F7;
-                      --link: #89DCEB;
-                      --code-bg: #313244;
-                      --border: #45475A;
-                      --selection: #585B70;
-                      --accent: #F5C2E7;
-                  }
-                  
-                  body {
-                      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-                      line-height: 1.6;
-                      color: var(--text);
-                      background-color: var(--background);
-                      max-width: 900px;
-                      margin: 0 auto;
-                      padding: 20px;
-                  }
-                  
-                  h1, h2, h3 {
-                      color: var(--header);
-                  }
-                  
-                  a {
-                      color: var(--link);
-                      text-decoration: none;
-                  }
-                  
-                  a:hover {
-                      text-decoration: underline;
-                  }
-                  
-                  .file-list {
-                      list-style-type: none;
-                      padding-left: 0;
-                  }
-                  
-                  .file-list li {
-                      margin-bottom: 8px;
-                  }
-                  
-                  .directory {
-                      margin-bottom: 16px;
-                  }
-                  
-                  .directory-name {
-                      background-color: var(--code-bg);
-                      padding: 8px 12px;
-                      border-radius: 4px;
-                      margin-bottom: 8px;
-                      font-weight: bold;
-                  }
+                :root {
+                  /* Catppuccin Mocha colors */
+                  --base: #1e1e2e;
+                  --surface0: #313244;
+                  --surface1: #45475a;
+                  --text: #cdd6f4;
+                  --subtext1: #bac2de;
+                  --blue: #89b4fa;
+                  --lavender: #b4befe;
+                  --pink: #f5c2e7;
+                  --mauve: #cba6f7;
+                  --red: #f38ba8;
+                  --peach: #fab387;
+                  --yellow: #f9e2af;
+                  --green: #a6e3a1;
+                }
+                
+                body {
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                  line-height: 1.6;
+                  color: var(--text);
+                  background-color: var(--base);
+                  max-width: 900px;
+                  margin: 0 auto;
+                  padding: 2rem;
+                }
+                
+                a {
+                  color: var(--blue);
+                  text-decoration: none;
+                }
+                
+                a:hover {
+                  text-decoration: underline;
+                }
+                
+                h1, h2, h3, h4, h5, h6 {
+                  color: var(--lavender);
+                  margin-top: 2rem;
+                }
+                
+                code {
+                  font-family: 'Fira Code', monospace;
+                  background-color: var(--surface0);
+                  padding: 0.2em 0.4em;
+                  border-radius: 3px;
+                }
+                
+                pre {
+                  background-color: var(--surface0);
+                  padding: 1rem;
+                  border-radius: 5px;
+                  overflow-x: auto;
+                }
+                
+                pre code {
+                  background-color: transparent;
+                  padding: 0;
+                }
+                
+                blockquote {
+                  border-left: 4px solid var(--mauve);
+                  padding-left: 1rem;
+                  color: var(--subtext1);
+                  margin-left: 0;
+                }
+                
+                table {
+                  border-collapse: collapse;
+                  width: 100%;
+                }
+                
+                th, td {
+                  border: 1px solid var(--surface1);
+                  padding: 0.5rem;
+                }
+                
+                th {
+                  background-color: var(--surface0);
+                }
+                
+                img {
+                  max-width: 100%;
+                  height: auto;
+                }
+                
+                hr {
+                  border: none;
+                  border-top: 1px solid var(--surface1);
+                  margin: 2rem 0;
+                }
               </style>
-          </head>
-          <body>
-              <h1>Documentation Index</h1>
-              <p>Generated documentation from Markdown files</p>
-          EOF
+            </head>
+            <body>
+              ${content}
+            </body>
+            </html>
+            `;
+            
+            // Process each markdown file
+            for (const mdFile of changedFiles) {
+              try {
+                const mdContent = fs.readFileSync(mdFile, 'utf8');
+                const htmlContent = md.render(mdContent);
+                
+                // Create filename with path
+                const dirname = path.dirname(mdFile);
+                const basename = path.basename(mdFile, '.md');
+                const htmlFile = path.join('html_output', dirname, `${basename}.html`);
+                
+                // Create directory if it doesn't exist
+                fs.mkdirSync(path.dirname(htmlFile), { recursive: true });
+                
+                // Get title from first heading or use filename
+                const titleMatch = mdContent.match(/^#\s+(.+)$/m);
+                const title = titleMatch ? titleMatch[1] : basename;
+                
+                // Write HTML file
+                fs.writeFileSync(htmlFile, htmlTemplate(title, htmlContent));
+                console.log(`Converted ${mdFile} to ${htmlFile}`);
+              } catch (error) {
+                console.error(`Error processing ${mdFile}:`, error);
+              }
+            }
+          }
 
-          # Generate directory structure
-          echo "    <div class=\"directories\">" >> index.html
+          main().catch(console.error);
+          EOL
 
-          cd ..
+      - name: Find changed markdown files
+        id: changed-files
+        run: |
+          # Get all changed markdown files from feature branch
+          CHANGED_FILES=$(git diff --name-only $(git merge-base origin/main HEAD) HEAD | grep '\.md$' || echo "")
+          echo "Changed markdown files: $CHANGED_FILES"
+          echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
 
-          # Get unique directories
-          DIRECTORIES=$(echo "$MARKDOWN_FILES" | sed -E 's|/[^/]+$||' | sort | uniq)
+      - name: Convert markdown to HTML
+        run: node convert.js
 
-          # Add root directory files
-          ROOT_FILES=$(echo "$MARKDOWN_FILES" | grep -v "/" | sed 's|^\./||')
-          if [ ! -z "$ROOT_FILES" ]; then
-              echo "        <div class=\"directory\">" >> docs/index.html
-              echo "            <div class=\"directory-name\">Root</div>" >> docs/index.html
-              echo "            <ul class=\"file-list\">" >> docs/index.html
-              echo "$ROOT_FILES" | while read -r file; do
-                  if [ ! -z "$file" ]; then
-                      filename=$(basename "$file" .md)
-                      echo "                <li><a href=\"$filename.html\">$filename</a></li>" >> docs/index.html
-                  fi
-              done
-              echo "            </ul>" >> docs/index.html
-              echo "        </div>" >> docs/index.html
+      - name: Checkout docs branch
+        run: |
+          # Save the HTML output temporarily
+          mkdir -p ../html_output_tmp
+          cp -r html_output/* ../html_output_tmp/ || true
+
+          # Checkout docs branch
+          git fetch origin docs || true
+          if git rev-parse --verify origin/docs >/dev/null 2>&1; then
+            git checkout docs
+          else
+            git checkout --orphan docs
+            git rm -rf . || true
+            echo "# Documentation" > README.md
+            git add README.md
+            git commit -m "Initialize docs branch"
           fi
 
-          # Add subdirectory files
-          echo "$DIRECTORIES" | while read -r dir; do
-              if [ ! -z "$dir" ] && [ "$dir" != "." ]; then
-                  dir_clean=$(echo $dir | sed 's|^\./||')
-                  echo "        <div class=\"directory\">" >> docs/index.html
-                  echo "            <div class=\"directory-name\">$dir_clean</div>" >> docs/index.html
-                  echo "            <ul class=\"file-list\">" >> docs/index.html
-                  
-                  DIR_FILES=$(echo "$MARKDOWN_FILES" | grep "^$dir/" | sed 's|^\./||')
-                  echo "$DIR_FILES" | while read -r file; do
-                      if [ ! -z "$file" ]; then
-                          filename=$(basename "$file" .md)
-                          file_dir=$(dirname "$file")
-                          echo "                <li><a href=\"$file_dir/$filename.html\">$filename</a></li>" >> docs/index.html
-                      fi
-                  done
-                  
-                  echo "            </ul>" >> docs/index.html
-                  echo "        </div>" >> docs/index.html
-              fi
-          done
-
-          echo "    </div>" >> docs/index.html
-          echo "</body>" >> docs/index.html
-          echo "</html>" >> docs/index.html
+          # Copy HTML files back
+          mkdir -p .
+          cp -r ../html_output_tmp/* . || true
 
       - name: Configure Git
         run: |
-          cd docs
-          git config user.name "GitHub Actions"
+          git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
 
       - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          cd docs
-          git add .
-          git diff --staged --quiet || git commit -m "Update HTML docs from markdown changes in ${GITHUB_REF##*/}"
+          git add -A
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          # Get the current branch name
+          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+          echo "Current branch: $BRANCH_NAME"
+
+          git commit -m "Convert markdown to HTML from feature branch"
+
+          # Set remote URL with token
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+
+          # Push to docs branch
           git push origin docs
