@@ -8,7 +8,6 @@ Inhoud:
 - Key Principes
 - Ontwikkelomgeving
 - Een eerste deployment
-- Opdracht tijd
 
 ## Introductie vak IAC
 
