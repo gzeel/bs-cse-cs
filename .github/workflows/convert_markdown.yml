@@ -497,26 +497,46 @@ jobs:
           </html>
           `;
 
-          // Function to fix image paths in HTML content
+          // Function to fix image paths in HTML content and prepare for image copying
           function fixImagePaths(html, mdFilePath, outputPath) {
-            // Get the relative directory of the markdown file
-            const mdDir = path.dirname(mdFilePath);
             const outputDir = path.dirname(outputPath);
+            const imagesDir = path.join(outputDir, 'images');
+            const imagesToCopy = [];
             
-            // Fix relative image paths
-            // Look for <img src="..."> tags and adjust the paths
-            return html.replace(/<img([^>]*)src="([^"]+)"([^>]*)>/g, (match, before, src, after) => {
+            // Fix image paths and collect images that need to be copied
+            const processedHtml = html.replace(/<img([^>]*)src="([^"]+)"([^>]*)>/g, (match, before, src, after) => {
               // Skip absolute URLs or data URLs
               if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
                 return match;
               }
               
-              // Compute the correct relative path
-              const absoluteSrc = path.resolve(mdDir, src);
-              const relativeToOutput = path.relative(outputDir, absoluteSrc);
+              // Get the actual image filename
+              const imageName = path.basename(src);
               
-              return `<img${before}src="${relativeToOutput}"${after}>`;
+              // Compute the source path (where the image currently is)
+              const mdDir = path.dirname(mdFilePath);
+              let imagePath;
+              
+              // Handle absolute and relative paths
+              if (src.startsWith('/')) {
+                // Absolute path from repo root
+                imagePath = path.join('.', src);
+              } else {
+                // Relative path from markdown file
+                imagePath = path.join(mdDir, src);
+              }
+              
+              // Add to the list of images to copy
+              imagesToCopy.push({
+                source: imagePath,
+                destination: path.join(imagesDir, imageName)
+              });
+              
+              // Return updated img tag with the new path
+              return `<img${before}src="images/${imageName}"${after}>`;
             });
+            
+            return { html: processedHtml, imagesToCopy };
           }
 
           async function findMarkdownFiles(directory) {
@@ -637,14 +657,11 @@ jobs:
             git commit --allow-empty -m "Initial commit for docs branch"
           fi
 
-      - name: Copy HTML files and images to docs branch
+      - name: Copy HTML files to docs branch
         run: |
-          # Create directories and copy HTML files
+          # Create directories and copy files
           mkdir -p temp_copy
           cp -r html_output/* temp_copy/
-
-          # Copy images to temp directory
-          find . -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.svg" -o -iname "*.webp" \) -not -path "./node_modules/*" -not -path "./.git/*" -exec cp --parents {} temp_copy/ \;
 
           # Clean existing files but keep .git directory
           find . -not -path "./.git*" -not -path "./temp_copy*" -delete
