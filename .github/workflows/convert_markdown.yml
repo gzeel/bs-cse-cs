@@ -119,28 +119,6 @@ jobs:
                 border-radius: 6px;
                 background-color: var(--color-canvas-default);
               }
-              
-              /* Header & Navigation */
-              .header {
-                display: flex;
-                align-items: center;
-                margin-bottom: 16px;
-                padding: 16px;
-                background-color: var(--color-canvas-subtle);
-                border-radius: 6px;
-                border: 1px solid var(--color-border-default);
-              }
-              
-              .repo-name {
-                font-weight: 600;
-                font-size: 18px;
-                color: var(--color-fg-default);
-                text-decoration: none;
-              }
-              
-              .repo-name:hover {
-                text-decoration: underline;
-              }
 
               /* Table of Contents */
               .toc-container {
@@ -505,10 +483,6 @@ jobs:
             </style>
           </head>
           <body>
-            <div class="header">
-              <a href="../" class="repo-name">Back to Repository</a>
-            </div>
-            
             ${tocContent ? `
             <div class="toc-container">
               <h3 class="toc-header">Table of Contents</h3>
