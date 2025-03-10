@@ -19,7 +19,7 @@ Inhoud:
 - Bla 3
 - Bla 5
 - Bla 8
-- Bla 7
+- Bla 3
 - Bla 8
 - Bla 9
 
