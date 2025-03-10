@@ -35,6 +35,11 @@ jobs:
           npm init -y
           npm install markdown-it markdown-it-highlightjs highlight.js markdown-it-anchor markdown-it-toc-done-right
 
+      - name: List files in workflow directory
+        run: |
+          echo "Files in .github/workflows directory:"
+          ls -la .github/workflows/
+
       - name: Run Python conversion script
         run: python .github/workflows/md_converter.py
         env:
