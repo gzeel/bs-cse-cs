@@ -11,7 +11,6 @@ Inhoud:
 
 ## Introductie vak IAC
 
-- Ruimte om aan opdrachten te werken
 - Alle losse opdrachten bij elkaar vormt voor je eindopdracht
 - Aan het einde maak je een portfolio video waarin je laat zien dat alle opdrachten werken
 - Alle code moet in Gitlab (gitlab.windesheim.nl)
