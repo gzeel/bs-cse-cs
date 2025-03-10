@@ -33,7 +33,7 @@ jobs:
         run: |
           npm init -y
           npm install markdown-it markdown-it-prism prismjs cross-env
-          npm install shiki catppuccin-shiki
+          npm install shiki
 
       - name: Create conversion script
         run: |
@@ -43,15 +43,65 @@ jobs:
           const markdownit = require('markdown-it');
           const prism = require('markdown-it-prism');
           const shiki = require('shiki');
-          const { getTheme } = require('catppuccin-shiki');
 
           async function main() {
             // Get all changed markdown files
             const changedFiles = process.env.CHANGED_FILES.split(' ').filter(file => file.endsWith('.md'));
             
-            // Initialize markdown-it with catppuccin theme
+            // Initialize markdown-it with catppuccin-like theme
             const highlighter = await shiki.getHighlighter({
-              theme: getTheme('mocha') // Catppuccin mocha theme
+              theme: {
+                name: 'catppuccin-mocha',
+                type: 'dark',
+                settings: [
+                  {
+                    "settings": {
+                      "background": "#1E1E2E",
+                      "foreground": "#CDD6F4",
+                      "lineHighlight": "#313244",
+                      "selection": "#45475A"
+                    }
+                  }
+                ],
+                tokenColors: [
+                  {
+                    "scope": ["comment"],
+                    "settings": {
+                      "foreground": "#6C7086"
+                    }
+                  },
+                  {
+                    "scope": ["string"],
+                    "settings": {
+                      "foreground": "#A6E3A1"
+                    }
+                  },
+                  {
+                    "scope": ["constant.numeric"],
+                    "settings": {
+                      "foreground": "#FAB387"
+                    }
+                  },
+                  {
+                    "scope": ["keyword"],
+                    "settings": {
+                      "foreground": "#CBA6F7"
+                    }
+                  },
+                  {
+                    "scope": ["entity.name.function"],
+                    "settings": {
+                      "foreground": "#89B4FA"
+                    }
+                  },
+                  {
+                    "scope": ["variable"],
+                    "settings": {
+                      "foreground": "#F5C2E7"
+                    }
+                  }
+                ]
+              }
             });
             
             const md = markdownit({
