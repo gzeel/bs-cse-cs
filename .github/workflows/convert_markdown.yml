@@ -18,6 +18,11 @@ jobs:
         with:
           fetch-depth: 0 # Fetch all history for proper branch handling
 
+      - name: List markdown files
+        run: |
+          echo "Markdown files in the repository:"
+          find . -name "*.md" | sort
+
       - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
@@ -119,7 +124,7 @@ jobs:
                 border-radius: 6px;
                 background-color: var(--color-canvas-default);
               }
-
+              
               /* Table of Contents */
               .toc-container {
                 margin-bottom: 32px;
@@ -394,92 +399,6 @@ jobs:
                 color: #22863a;
                 background-color: #f0fff4;
               }
-
-              /* For dark mode - if needed, uncomment and adjust
-              @media (prefers-color-scheme: dark) {
-                :root {
-                  --color-canvas-default: #0d1117;
-                  --color-canvas-subtle: #161b22;
-                  --color-border-default: #30363d;
-                  --color-border-muted: #21262d;
-                  --color-neutral-muted: rgba(110, 118, 129, 0.4);
-                  --color-accent-fg: #58a6ff;
-                  --color-accent-emphasis: #1f6feb;
-                  --color-danger-fg: #f85149;
-                  --color-fg-default: #c9d1d9;
-                  --color-fg-muted: #8b949e;
-                  --color-fg-subtle: #6e7681;
-                  --color-success-fg: #3fb950;
-                  --color-attention-fg: #d29922;
-                  --color-code-block-bg: #161b22;
-                  --color-code-block-border: #30363d;
-                }
-
-                .hljs-doctag,
-                .hljs-keyword,
-                .hljs-meta .hljs-keyword,
-                .hljs-template-tag,
-                .hljs-template-variable,
-                .hljs-type,
-                .hljs-variable.language_ {
-                  color: #ff7b72;
-                }
-                
-                .hljs-title,
-                .hljs-title.class_,
-                .hljs-title.class_.inherited__,
-                .hljs-title.function_ {
-                  color: #d2a8ff;
-                }
-                
-                .hljs-attr,
-                .hljs-attribute,
-                .hljs-literal,
-                .hljs-meta,
-                .hljs-number,
-                .hljs-operator,
-                .hljs-selector-attr,
-                .hljs-selector-class,
-                .hljs-selector-id,
-                .hljs-variable {
-                  color: #79c0ff;
-                }
-                
-                .hljs-meta .hljs-string,
-                .hljs-regexp,
-                .hljs-string {
-                  color: #a5d6ff;
-                }
-                
-                .hljs-built_in,
-                .hljs-symbol {
-                  color: #ffa657;
-                }
-                
-                .hljs-comment,
-                .hljs-code,
-                .hljs-formula {
-                  color: #8b949e;
-                }
-                
-                .hljs-name,
-                .hljs-quote,
-                .hljs-selector-tag,
-                .hljs-selector-pseudo {
-                  color: #7ee787;
-                }
-                
-                .hljs-deletion {
-                  color: #ffa198;
-                  background-color: #490202;
-                }
-                
-                .hljs-addition {
-                  color: #aff5b4;
-                  background-color: #033a16;
-                }
-              }
-              */
             </style>
           </head>
           <body>
@@ -497,8 +416,10 @@ jobs:
           </html>
           `;
 
-          // Function to fix image paths in HTML content and prepare for image copying
-          function fixImagePaths(html, mdFilePath, outputPath) {
+          // Process images in HTML content and prepare them for copying
+          function processImages(html, mdFilePath, outputPath) {
+            console.log(`Processing images for ${mdFilePath} -> ${outputPath}`);
+            
             const outputDir = path.dirname(outputPath);
             const imagesDir = path.join(outputDir, 'images');
             const imagesToCopy = [];
@@ -507,11 +428,13 @@ jobs:
             const processedHtml = html.replace(/<img([^>]*)src="([^"]+)"([^>]*)>/g, (match, before, src, after) => {
               // Skip absolute URLs or data URLs
               if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
+                console.log(`  - Skipping external image: ${src}`);
                 return match;
               }
               
               // Get the actual image filename
               const imageName = path.basename(src);
+              console.log(`  - Found image: ${imageName} (source: ${src})`);
               
               // Compute the source path (where the image currently is)
               const mdDir = path.dirname(mdFilePath);
@@ -525,6 +448,9 @@ jobs:
                 // Relative path from markdown file
                 imagePath = path.join(mdDir, src);
               }
+              
+              console.log(`  - Source path: ${imagePath}`);
+              console.log(`  - Destination: ${path.join(imagesDir, imageName)}`);
               
               // Add to the list of images to copy
               imagesToCopy.push({
@@ -560,13 +486,17 @@ jobs:
             }
             
             await traverse(directory);
+            console.log(`Found ${fileList.length} markdown files to process`);
             return fileList;
           }
 
           async function convertMarkdownToHtml(mdFilePath, outputDir) {
             try {
+              console.log(`\nConverting ${mdFilePath} to HTML...`);
+              
               // Read markdown content
               const mdContent = await fs.readFile(mdFilePath, 'utf8');
+              console.log(`Read ${mdContent.length} bytes from ${mdFilePath}`);
               
               // Get title from first heading or filename
               let title = path.basename(mdFilePath, '.md');
@@ -574,6 +504,7 @@ jobs:
               if (headingMatch) {
                 title = headingMatch[1];
               }
+              console.log(`Document title: ${title}`);
               
               // Generate TOC
               let tocContent = '';
@@ -583,93 +514,143 @@ jobs:
               
               // Convert markdown to HTML
               const htmlContent = md.render(contentWithTocPlaceholder);
+              console.log(`Generated ${htmlContent.length} bytes of HTML`);
               
               // Extract TOC
               const tocMatch = htmlContent.match(/<nav class="table-of-contents">([\s\S]*?)<\/nav>/);
               if (tocMatch) {
                 tocContent = tocMatch[1];
+                console.log(`Found table of contents`);
               }
               
               // Remove the TOC placeholder from the content
-              let processedContent = htmlContent.replace(/<nav class="table-of-contents">[\s\S]*?<\/nav>/, '');
+              let contentWithoutToc = htmlContent.replace(/<nav class="table-of-contents">[\s\S]*?<\/nav>/, '');
               
               // Determine file paths
               const relativePath = path.relative('.', mdFilePath);
               const outputPath = path.join(outputDir, relativePath.replace(/\.md$/, '.html'));
+              console.log(`Output path: ${outputPath}`);
               
               // Create directory structure if it doesn't exist
               await fs.mkdir(path.dirname(outputPath), { recursive: true });
               
-              // Fix image paths
-              processedContent = fixImagePaths(processedContent, mdFilePath, outputPath);
+              // Process images
+              const { processedHtml, imagesToCopy } = processImages(contentWithoutToc, mdFilePath, outputPath);
+              
+              // Create images directory if needed
+              if (imagesToCopy.length > 0) {
+                const imagesDir = path.join(path.dirname(outputPath), 'images');
+                await fs.mkdir(imagesDir, { recursive: true });
+                console.log(`Created images directory: ${imagesDir}`);
+              }
+              
+              // Copy images
+              for (const image of imagesToCopy) {
+                try {
+                  // Check if the source image exists
+                  try {
+                    await fs.access(image.source);
+                    console.log(`Image found: ${image.source}`);
+                  } catch (err) {
+                    console.warn(`Warning: Image not found: ${image.source}`);
+                    continue;
+                  }
+                  
+                  // Create parent directories if needed
+                  await fs.mkdir(path.dirname(image.destination), { recursive: true });
+                  
+                  // Copy the image
+                  await fs.copyFile(image.source, image.destination);
+                  console.log(`Copied image to: ${image.destination}`);
+                } catch (error) {
+                  console.warn(`Warning: Failed to copy image ${image.source}: ${error.message}`);
+                }
+              }
               
               // Write HTML file
-              await fs.writeFile(outputPath, htmlTemplate(processedContent, title, tocContent));
+              await fs.writeFile(outputPath, htmlTemplate(processedHtml, title, tocContent));
+              console.log(`✓ Created HTML file: ${outputPath}`);
               
-              console.log(`Converted ${mdFilePath} to ${outputPath}`);
+              return outputPath;
             } catch (error) {
               console.error(`Error converting ${mdFilePath}:`, error);
-              process.exit(1);
+              throw error; // Rethrow to handle in main
             }
           }
 
           async function main() {
             try {
+              console.log('Starting markdown to HTML conversion...');
               const outputDir = 'html_output';
               
               // Create output directory
               await fs.mkdir(outputDir, { recursive: true });
+              console.log(`Created output directory: ${outputDir}`);
               
               // Find all markdown files
               const mdFiles = await findMarkdownFiles('.');
-              console.log(`Found ${mdFiles.length} markdown files to convert`);
-              
-              // Convert each markdown file to HTML
-              for (const mdFile of mdFiles) {
-                console.log(`Processing: ${mdFile}`);
-                await convertMarkdownToHtml(mdFile, outputDir);
+              if (mdFiles.length === 0) {
+                console.log('No markdown files found!');
+                return;
               }
               
-              // After all conversions, print all images directories
-              console.log('\nImage directories created:');
-              await findImagesDirectories(outputDir);
+              // Convert each markdown file to HTML
+              const results = [];
+              for (const mdFile of mdFiles) {
+                try {
+                  const outputPath = await convertMarkdownToHtml(mdFile, outputDir);
+                  results.push({ mdFile, outputPath, success: true });
+                } catch (error) {
+                  results.push({ mdFile, error: error.message, success: false });
+                }
+              }
               
-              console.log('Conversion completed successfully!');
+              // Print summary
+              console.log('\n=== Conversion Summary ===');
+              console.log(`Total markdown files: ${mdFiles.length}`);
+              const successCount = results.filter(r => r.success).length;
+              console.log(`Successfully converted: ${successCount}`);
+              console.log(`Failed conversions: ${results.length - successCount}`);
+              
+              if (results.length - successCount > 0) {
+                console.log('\nFailed conversions:');
+                results.filter(r => !r.success).forEach(r => {
+                  console.log(`- ${r.mdFile}: ${r.error}`);
+                });
+              }
+              
+              // List all HTML files and images
+              console.log('\nGenerated files:');
+              await listFiles(outputDir);
+              
+              console.log('\nConversion completed!');
             } catch (error) {
-              console.error('Error during conversion:', error);
+              console.error('Fatal error during conversion:', error);
               process.exit(1);
             }
           }
 
-          async function findImagesDirectories(dir) {
-            try {
-              const directories = [];
+          async function listFiles(dir) {
+            const files = [];
+            
+            async function traverse(currentDir, indent = '') {
+              const entries = await fs.readdir(currentDir, { withFileTypes: true });
               
-              async function traverse(currentDir) {
-                const entries = await fs.readdir(currentDir, { withFileTypes: true });
+              for (const entry of entries) {
+                const fullPath = path.join(currentDir, entry.name);
                 
-                for (const entry of entries) {
-                  const fullPath = path.join(currentDir, entry.name);
-                  
-                  if (entry.isDirectory()) {
-                    if (entry.name === 'images') {
-                      directories.push(fullPath);
-                      // List contents of the images directory
-                      const images = await fs.readdir(fullPath);
-                      console.log(`${fullPath} contains ${images.length} files: ${images.join(', ')}`);
-                    } else {
-                      await traverse(fullPath);
-                    }
-                  }
+                if (entry.isDirectory()) {
+                  console.log(`${indent}📁 ${entry.name}/`);
+                  await traverse(fullPath, indent + '  ');
+                } else {
+                  console.log(`${indent}📄 ${entry.name}`);
+                  files.push(fullPath);
                 }
               }
-              
-              await traverse(dir);
-              return directories;
-            } catch (error) {
-              console.error('Error finding images directories:', error);
-              return [];
             }
+            
+            await traverse(dir);
+            return files;
           }
 
           main();
@@ -677,66 +658,97 @@ jobs:
 
       - name: Run conversion script
         run: |
-          echo "Starting conversion script"
+          echo "=== Starting markdown conversion ==="
           node convert.js
-          echo "Conversion script completed"
-          echo "Generated HTML structure:"
-          find html_output -type f | sort
+          echo "=== Conversion complete ==="
+
+          if [ -d "html_output" ]; then
+            echo "=== Generated HTML files ==="
+            find html_output -type f -name "*.html" | sort
+            
+            echo "=== Checking for images ==="
+            find html_output -type d -name "images" | xargs -I {} ls -la {} 2>/dev/null || echo "No images directory found"
+          else
+            echo "ERROR: html_output directory not found!"
+            exit 1
+          fi
 
       - name: Configure Git
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
 
-      - name: Checkout docs branch
+      - name: Create/checkout docs branch
         run: |
+          echo "=== Setting up docs branch ==="
+          # Check if the docs branch exists in the remote
           if git ls-remote --heads origin docs; then
+            echo "docs branch exists, checking out"
             git fetch origin docs
             git checkout docs
           else
+            echo "docs branch doesn't exist, creating it"
             git checkout --orphan docs
             git rm -rf .
-            git commit --allow-empty -m "Initial commit for docs branch"
+            touch README.md
+            echo "# Documentation" > README.md
+            git add README.md
+            git commit -m "Initial docs branch commit"
           fi
 
-      - name: Copy HTML files and images to docs branch
+          echo "Current branch: $(git branch --show-current)"
+          ls -la
+
+      - name: Copy files to docs branch
         run: |
-          # List all contents to debug
-          echo "Contents of html_output:"
-          find html_output -type f | sort
+          echo "=== Copying HTML files to docs branch ==="
 
-          # Create directories and copy files
-          mkdir -p temp_copy
-          cp -r html_output/* temp_copy/
+          # Before state
+          echo "Files in docs branch before:"
+          ls -la
 
-          # Make sure we preserve the images
-          echo "Preserving images directory structure"
-          find html_output -type d -name "images" -exec ls -la {} \;
+          # Create a temporary directory for holding files
+          mkdir -p /tmp/html_output_copy
+          cp -r html_output/* /tmp/html_output_copy/
 
-          # Clean existing files but keep .git directory
-          find . -not -path "./.git*" -not -path "./temp_copy*" -delete
+          # Clean everything except .git directory
+          find . -mindepth 1 -not -path "./.git*" -delete
 
-          # Move the files back
-          cp -r temp_copy/* .
-          rm -rf temp_copy
+          # Copy the HTML output back
+          cp -r /tmp/html_output_copy/* .
 
-          # List final content to verify
-          echo "Final docs branch content:"
-          find . -not -path "./.git*" -type f | sort
+          # After state
+          echo "Files in docs branch after copy:"
+          find . -type f | grep -v "^./.git" | sort
+
+          # Check for specific directories
+          if [ -d "$(find . -type d -name 'images' | head -1)" ]; then
+            echo "✓ Images directory present"
+            find . -name "images" -type d | xargs -I {} ls -la {}
+          else
+            echo "✗ No images directory found"
+          fi
 
       - name: Commit and push to docs branch
         run: |
+          echo "=== Committing changes to docs branch ==="
           git add .
 
-          if git status | grep -q "nothing to commit"; then
+          if git status --porcelain | grep .; then
+            echo "Changes detected, committing..."
+            git commit -m "Convert Markdown to HTML from branch ${GITHUB_REF#refs/heads/}"
+            echo "Pushing to docs branch..."
+            git remote set-url origin https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}
+            git push origin docs
+            echo "✓ Successfully pushed to docs branch"
+          else
             echo "No changes to commit"
-            exit 0
           fi
 
-          git commit -m "Convert Markdown to HTML from branch ${GITHUB_REF#refs/heads/}"
-
-          # Use GitHub token for authentication
-          git remote set-url origin https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}
-          git push origin docs
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Summary
+        run: |
+          echo "=== Workflow Summary ==="
+          echo "✓ Markdown files processed"
+          echo "✓ HTML files generated"
+          echo "✓ Changes pushed to docs branch"
+          echo "View your documentation at: https://github.com/${{ github.repository }}/tree/docs"

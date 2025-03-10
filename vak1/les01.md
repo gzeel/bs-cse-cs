@@ -20,6 +20,7 @@ Inhoud:
 - Bla 5
 - Bla 6
 - Bla 7
+- Bla 8
 
 ## Introductie Infrastructure as Code
 
