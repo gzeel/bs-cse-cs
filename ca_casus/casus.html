@@ -1,0 +1,424 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cloud Automation: De Reis naar DevSecOps via De Drie Wegen</title>
+<style>
+    :root {
+      /* GitHub Light Variables */
+      --color-canvas-default: #ffffff;
+      --color-canvas-subtle: #f6f8fa;
+      --color-border-default: #d0d7de;
+      --color-border-muted: #d8dee4;
+      --color-neutral-muted: rgba(175, 184, 193, 0.2);
+      --color-accent-fg: #0969da;
+      --color-accent-emphasis: #0969da;
+      --color-danger-fg: #cf222e;
+      --color-fg-default: #24292f;
+      --color-fg-muted: #57606a;
+      --color-fg-subtle: #6e7781;
+      --color-success-fg: #1a7f37;
+      --color-attention-fg: #9a6700;
+      --color-header-bg: #24292f;
+      --color-header-fg: #ffffff;
+      --color-header-logo: #ffffff;
+      --color-header-search-bg: #24292f;
+      --color-header-search-border: #57606a;
+      --color-code-block-bg: #f6f8fa;
+      --color-code-block-border: #d0d7de;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      color: var(--color-fg-default);
+      background-color: var(--color-canvas-default);
+      max-width: 1012px;
+      margin: 0 auto;
+      padding: 32px;
+      font-size: 16px;
+    }
+    
+    /* Layout */
+    .markdown-body {
+      position: relative;
+      margin-bottom: 16px;
+      padding: 32px;
+      border: 1px solid var(--color-border-default);
+      border-radius: 6px;
+      background-color: var(--color-canvas-default);
+    }
+    
+    /* Table of Contents */
+    .toc-container {
+      margin-bottom: 32px;
+      padding: 16px;
+      background-color: var(--color-canvas-subtle);
+      border: 1px solid var(--color-border-default);
+      border-radius: 6px;
+    }
+    
+    .toc-header {
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    
+    .toc-list {
+      padding-left: 20px;
+      margin-bottom: 0;
+    }
+    
+    .toc-item {
+      margin: 4px 0;
+    }
+    
+    .toc-link {
+      color: var(--color-accent-fg);
+      text-decoration: none;
+    }
+    
+    .toc-link:hover {
+      text-decoration: underline;
+    }
+    
+    /* Typography */
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 24px;
+      margin-bottom: 16px;
+      font-weight: 600;
+      line-height: 1.25;
+      padding-bottom: 0.3em;
+    }
+    
+    h1 {
+      font-size: 2em;
+      margin-top: 0;
+      border-bottom: 1px solid var(--color-border-muted);
+    }
+    
+    h2 {
+      font-size: 1.5em;
+      border-bottom: 1px solid var(--color-border-muted);
+    }
+    
+    h3 {
+      font-size: 1.25em;
+    }
+    
+    h4 {
+      font-size: 1em;
+    }
+    
+    h5 {
+      font-size: 0.875em;
+    }
+    
+    h6 {
+      font-size: 0.85em;
+      color: var(--color-fg-muted);
+    }
+    
+    a {
+      color: var(--color-accent-fg);
+      text-decoration: none;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+    
+    .anchor {
+      float: left;
+      padding-right: 4px;
+      margin-left: -20px;
+      line-height: 1;
+      display: inline-block;
+      color: var(--color-fg-muted);
+      opacity: 0;
+      text-decoration: none;
+    }
+    
+    h1:hover .anchor,
+    h2:hover .anchor,
+    h3:hover .anchor,
+    h4:hover .anchor,
+    h5:hover .anchor,
+    h6:hover .anchor {
+      opacity: 1;
+    }
+    
+    /* Text elements */
+    p {
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    
+    blockquote {
+      padding: 0 1em;
+      color: var(--color-fg-muted);
+      border-left: 0.25em solid var(--color-border-default);
+      margin: 0 0 16px 0;
+    }
+    
+    ul, ol {
+      padding-left: 2em;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    
+    li {
+      margin-top: 0.25em;
+    }
+    
+    li + li {
+      margin-top: 0.25em;
+    }
+    
+    /* Code */
+    code {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      padding: 0.2em 0.4em;
+      margin: 0;
+      font-size: 85%;
+      background-color: var(--color-neutral-muted);
+      border-radius: 6px;
+    }
+    
+    pre {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      padding: 16px;
+      overflow: auto;
+      font-size: 85%;
+      line-height: 1.45;
+      background-color: var(--color-code-block-bg);
+      border-radius: 6px;
+      margin-top: 0;
+      margin-bottom: 16px;
+      word-wrap: normal;
+      border: 1px solid var(--color-code-block-border);
+    }
+    
+    pre code {
+      font-size: 100%;
+      padding: 0;
+      margin: 0;
+      background-color: transparent;
+      border: 0;
+      white-space: pre;
+      word-break: normal;
+    }
+    
+    /* Tables */
+    table {
+      display: block;
+      width: 100%;
+      width: max-content;
+      max-width: 100%;
+      overflow: auto;
+      border-spacing: 0;
+      border-collapse: collapse;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    
+    table th {
+      font-weight: 600;
+    }
+    
+    table th,
+    table td {
+      padding: 6px 13px;
+      border: 1px solid var(--color-border-default);
+    }
+    
+    table tr {
+      background-color: var(--color-canvas-default);
+      border-top: 1px solid var(--color-border-muted);
+    }
+    
+    table tr:nth-child(2n) {
+      background-color: var(--color-canvas-subtle);
+    }
+    
+    /* Images */
+    img {
+      max-width: 100%;
+      box-sizing: content-box;
+      background-color: var(--color-canvas-default);
+      border-radius: 6px;
+    }
+    
+    /* Markdown extras */
+    hr {
+      height: 0.25em;
+      padding: 0;
+      margin: 24px 0;
+      background-color: var(--color-border-default);
+      border: 0;
+    }
+    
+    /* GitHub syntax highlighting */
+    .hljs-doctag,
+    .hljs-keyword,
+    .hljs-meta .hljs-keyword,
+    .hljs-template-tag,
+    .hljs-template-variable,
+    .hljs-type,
+    .hljs-variable.language_ {
+      color: #d73a49;
+    }
+    
+    .hljs-title,
+    .hljs-title.class_,
+    .hljs-title.class_.inherited__,
+    .hljs-title.function_ {
+      color: #6f42c1;
+    }
+    
+    .hljs-attr,
+    .hljs-attribute,
+    .hljs-literal,
+    .hljs-meta,
+    .hljs-number,
+    .hljs-operator,
+    .hljs-selector-attr,
+    .hljs-selector-class,
+    .hljs-selector-id,
+    .hljs-variable {
+      color: #005cc5;
+    }
+    
+    .hljs-meta .hljs-string,
+    .hljs-regexp,
+    .hljs-string {
+      color: #032f62;
+    }
+    
+    .hljs-built_in,
+    .hljs-symbol {
+      color: #e36209;
+    }
+    
+    .hljs-comment,
+    .hljs-code,
+    .hljs-formula {
+      color: #6a737d;
+    }
+    
+    .hljs-name,
+    .hljs-quote,
+    .hljs-selector-tag,
+    .hljs-selector-pseudo {
+      color: #22863a;
+    }
+    
+    .hljs-deletion {
+      color: #b31d28;
+      background-color: #ffeef0;
+    }
+    
+    .hljs-addition {
+      color: #22863a;
+      background-color: #f0fff4;
+    }
+  </style>
+</head>
+<body>
+<div class="toc-container">
+<h3 class="toc-header">Table of Contents</h3>
+<ul class="toc-list"><li class="toc-item"><a class="toc-link" href="#casus-achtergrond">Casus Achtergrond </a></li><li class="toc-item"><a class="toc-link" href="#project-1%3A-op-zoek-naar-automatisering---de-ontdekking-van-containers">Project 1: Op Zoek naar Automatisering - De Ontdekking van Containers </a><ul class="toc-list"><li class="toc-item"><a class="toc-link" href="#het-k3s-experiment">Het K3S Experiment </a></li><li class="toc-item"><a class="toc-link" href="#verbeterde-flow-door-containerisatie">Verbeterde Flow door Containerisatie </a></li></ul></li><li class="toc-item"><a class="toc-link" href="#project-2%3A-de-ontdekking-van-de-drie-wegen-en-versterken-van-feedback-loops">Project 2: De Ontdekking van De Drie Wegen en Versterken van Feedback Loops </a></li><li class="toc-item"><a class="toc-link" href="#project-3%3A-een-cultuur-van-experimenteren-en-leren-via-de-derde-weg">Project 3: Een Cultuur van Experimenteren en Leren via de Derde Weg </a></li><li class="toc-item"><a class="toc-link" href="#conclusie">Conclusie </a></li></ul>
+</div>
+<div class="markdown-body">
+<h1 id="cloud-automation%3A-de-reis-naar-devsecops-via-de-drie-wegen" tabindex="-1">Cloud Automation: De Reis naar DevSecOps via De Drie Wegen <a aria-hidden="true" class="anchor" href="#cloud-automation%3A-de-reis-naar-devsecops-via-de-drie-wegen">#</a></h1>
+<h2 id="casus-achtergrond" tabindex="-1">Casus Achtergrond <a aria-hidden="true" class="anchor" href="#casus-achtergrond">#</a></h2>
+<p>Ahumbo, een grote Nederlandse supermarktketen, is in een digitale crisis beland. Het bedrijf heeft de afgelopen jaren fors geïnvesteerd in een online bestelsysteem en bezorgservice om te concurreren met pure e-commerce spelers. Aanvankelijk draaiden deze systemen op lokale servers in hun eigen datacenter, maar twee jaar geleden nam het management een strategisch besluit: Ahumbo moest “naar de cloud”.</p>
+<p>Onder druk van consultants en met de belofte van flexibiliteit en kostenbesparingen werden vrijwel alle workloads naar Azure gemigreerd - maar via een klassieke “lift and shift” aanpak. De Java-applicaties draaien nu op tientallen virtuele machines in Azure, maar de architectuur is nog steeds monolithisch. Niemand heeft een volledig overzicht van hoe alles samenhangt. De codebase doet denken aan een archeologische opgraving - lagen op lagen code, waar niemand meer aan durft te komen uit angst dat het hele systeem instort.</p>
+<p>In de directiekamer wordt de spanning voelbaar wanneer de CFO, Maria Gonzalez, het kwartaalrapport presenteert. “Onze Azure-kosten zijn het afgelopen jaar met 230% gestegen,” zegt ze met een diepe frons. “De beloofde kostenbesparingen zijn niet gerealiseerd - integendeel. We betalen nu meer dan ooit, en niemand lijkt te kunnen uitleggen waarom.”</p>
+<p>De CEO, Pieter van den Berg, slaat met zijn vlakke hand op de vergadertafel. “Ik krijg dagelijks klachten van klanten die hun boodschappen niet kunnen bestellen. Onze bezorgers staan soms voor een gesloten deur omdat bestellingen verkeerd zijn verwerkt. Dit kost ons niet alleen klanten, maar ook onze reputatie!”</p>
+<p>“En dat is nog niet alles,” voegt Jan-Willem de Groot, de CIO, toe. “Er is niemand die echt de eigenaar is van onze cloud-omgeving. IT Operations zegt dat het Development is, Development zegt dat het Infrastructure is, en ondertussen heeft iedereen toegang tot de Azure Portal en maakt iedereen resources aan wanneer ze dat nodig achten. Het is de Wild West.”</p>
+<p>In een heel ander deel van het hoofdkantoor zitten de ontwikkelaars gefrustreerd naar hun schermen te staren. Huub Amster, een senior developer met tien jaar ervaring bij Ahumbo, heeft net drie dagen aan code-aanpassingen verloren omdat een collega zonder overleg de VM-configuratie heeft aangepast. Zijn smartphone vibreert constant met alerts van de productieomgeving die weer onder druk staat omdat het weekend nadert - de traditionele piek in online bestellingen.</p>
+<h2 id="project-1%3A-op-zoek-naar-automatisering---de-ontdekking-van-containers" tabindex="-1">Project 1: Op Zoek naar Automatisering - De Ontdekking van Containers <a aria-hidden="true" class="anchor" href="#project-1%3A-op-zoek-naar-automatisering---de-ontdekking-van-containers">#</a></h2>
+<p>De frustratie onder het ontwikkelteam bereikt een hoogtepunt wanneer voor de derde keer die week één van de Azure VM’s overbelast raakt tijdens een deployment. Huub Amster besluit dat er een fundamentele verandering nodig is.</p>
+<p>“Zo kunnen we niet doorgaan,” zegt hij tijdens een impromptu team-vergadering. “Elke deployment is een avontuur, en niet in de goede zin van het woord. We moeten een manier vinden om het proces te automatiseren en consistenter te maken.”</p>
+<p>Het team brainstormt over mogelijke oplossingen:</p>
+<p>“We zouden Ansible scripts kunnen schrijven om deployments te automatiseren,” oppert Sarah van Dam, een backend developer.</p>
+<p>“Of wat dacht je van Puppet of Chef voor configuratiebeheer?” voegt Jaap Klaassen, een frontend developer, toe.</p>
+<p>Huub knikt, maar lijkt niet helemaal overtuigd. “Die tools kunnen helpen, maar ze lossen niet het fundamentele probleem op dat onze ontwikkelomgeving verschilt van de testomgeving, die weer verschilt van productie. We hebben steeds het ‘het werkt op mijn machine’ probleem.”</p>
+<p>Die avond doet Huub onderzoek naar moderne automatiseringsoplossingen en stuit op een blog over containerisatie en Kubernetes. Hij is meteen gefascineerd. “Dit is het,” mompelt hij terwijl hij dieper duikt in de concepten. “Containers lossen het ‘het werkt op mijn machine’ probleem op. En Kubernetes zou onze scaling issues kunnen verhelpen.”</p>
+<h3 id="het-k3s-experiment" tabindex="-1">Het K3S Experiment <a aria-hidden="true" class="anchor" href="#het-k3s-experiment">#</a></h3>
+<p>De volgende dag presenteert Huub zijn ideeën aan het team.</p>
+<p>“Ik stel voor dat we experimenteren met containers,” zegt hij enthousiast. “Maar in plaats van meteen naar Azure te gaan, laten we eerst lokaal testen met K3s, een lichtgewicht Kubernetes distributie. We kunnen een oude server uit de afgeschreven hardware stack gebruiken.”</p>
+<p>Erik Noorhuis, de teamleider, kijkt sceptisch. “Is dit niet gewoon een nieuwe technische speeltje?”</p>
+<p>“Nee,” antwoordt Huub vastberaden. “Dit gaat over fundamenteel veranderen hoe we werken. Containers kunnen ons helpen om consistentie te creëren tussen ontwikkeling, test en productie. En K3s geeft ons de mogelijkheid om dit lokaal te testen zonder grote investeringen.”</p>
+<p>Het team besluit een experiment te starten. Ze vragen een oude server uit de afgeschreven hardware stack en installeren K3s. Na enkele dagen van trial-and-error krijgen ze een klein deel van de orderverwerking werkend in containers.</p>
+<p>De resultaten zijn opmerkelijk: de applicatie start in seconden op, gebruikt een fractie van de resources, en het beste van alles - het gedraagt zich exact hetzelfde, ongeacht waar het draait.</p>
+<p>“Dit is precies wat we nodig hebben,” zegt Sarah enthousiast. “Geen meer ‘het werkt op mijn machine’ excuses. De container bevat alles wat de applicatie nodig heeft.”</p>
+<p>Erik, aanvankelijk sceptisch, is onder de indruk. “En jullie zeggen dat we dit kunnen gebruiken om ook onze deployments te automatiseren?”</p>
+<p>“Absoluut,” knikt Huub. “We kunnen een CI/CD pipeline opzetten die automatisch een container bouwt, test, en deployt wanneer we code pushen. Geen handmatige stappen meer, geen inconsistenties tussen omgevingen.”</p>
+<h3 id="verbeterde-flow-door-containerisatie" tabindex="-1">Verbeterde Flow door Containerisatie <a aria-hidden="true" class="anchor" href="#verbeterde-flow-door-containerisatie">#</a></h3>
+<p>Geïnspireerd door het succes van hun experiment, besluit het team hun aanpak uit te breiden. Ze kiezen een niet-kritieke maar belangrijke microservice uit als volgende kandidaat voor containerisatie.</p>
+<p>Het team brengt hun huidige proces in kaart en ontdekt talloze vertragingen, handovers en inconsistenties. Ze ontwikkelen een nieuwe workflow:</p>
+<ol>
+<li>Ontwikkelaars schrijven code in hun lokale omgeving, met containers die identiek zijn aan productie</li>
+<li>Bij elke commit wordt automatisch een nieuwe container gebouwd</li>
+<li>Geautomatiseerde tests worden uitgevoerd in de container</li>
+<li>Bij succes wordt de container gedeployed naar de K3s testomgeving</li>
+<li>Na goedkeuring kan dezelfde container met één klik naar productie</li>
+</ol>
+<p>Na enkele weken van implementatie beginnen de voordelen zichtbaar te worden. Deployments die voorheen uren duurden, gebeuren nu in minuten. “Works on my machine” problemen zijn drastisch verminderd, en het team kan veel sneller reageren op klantfeedback.</p>
+<p>“Het is verbazingwekkend hoe veel soepeler ons proces nu verloopt,” merkt Lisa Wong, de QA engineer, op tijdens een retrospectieve. “De flow van code naar productie is nog nooit zo soepel geweest.”</p>
+<p>Huub knikt instemmend. “Dat is precies waar ik op hoopte. We hebben de doorstroming van werk aanzienlijk verbeterd, en dat was ons belangrijkste knelpunt.”</p>
+<p>Het succes van hun container-experiment en de verbeterde flow trekken de aandacht van andere teams binnen Ahumbo, inclusief Operations en Security.</p>
+<h2 id="project-2%3A-de-ontdekking-van-de-drie-wegen-en-versterken-van-feedback-loops" tabindex="-1">Project 2: De Ontdekking van De Drie Wegen en Versterken van Feedback Loops <a aria-hidden="true" class="anchor" href="#project-2%3A-de-ontdekking-van-de-drie-wegen-en-versterken-van-feedback-loops">#</a></h2>
+<p>Het succes van de K3s-implementatie heeft interesse gewekt bij andere teams binnen Ahumbo. Bram Visser, de Operations Manager, benadert Huub met een vraag.</p>
+<p>“Jullie hebben de flow van ontwikkeling naar productie verbeterd,” zegt hij, “maar we hebben nog steeds beperkt zicht op wat er in productie gebeurt. Als er problemen zijn, horen we het vaak eerst van klanten.”</p>
+<p>Huub knikt begrijpend. “Dat is inderdaad onze volgende uitdaging. We hebben de doorstroming verbeterd, maar we moeten ook beter worden in het detecteren en oplossen van problemen voordat ze klanten bereiken.”</p>
+<p>Tijdens een conferentie over DevOps hoort Huub over “De Drie Wegen van DevOps” - een raamwerk voor het denken over DevOps-transformatie. Hij deelt zijn inzichten met het uitgebreide team, nu inclusief vertegenwoordigers van Operations en Security.</p>
+<p>“Wat we hebben gedaan in ons eerste project,” legt Huub uit, “was in feite het toepassen van de Eerste Weg van DevOps - het optimaliseren van flow. We hebben knelpunten weggenomen en de doorstroming van werk van links naar rechts verbeterd, van idee naar waarde voor de klant.”</p>
+<p>“En nu ligt onze uitdaging bij wat zij de Tweede Weg noemen - het versterken van feedback loops. We hebben de stroom van links naar rechts verbeterd, maar we moeten ook de stroom van informatie van rechts naar links versterken.”</p>
+<p>Het team is geïntrigeerd door dit raamwerk.</p>
+<p>“Er is ook een Derde Weg,” vervolgt Huub. “Die gaat over een cultuur van experimenteren en continu leren. Maar laten we ons eerst richten op de Tweede Weg, aangezien dat onze meest urgente uitdaging is.”</p>
+<p>Een uitgebreid team komt samen om een volledig Kubernetes-platform te ontwikkelen met een sterke focus op observeerbaarheid en feedback, geïnspireerd door de principes van de Tweede Weg.</p>
+<p>“De Tweede Weg draait om het versnellen van leren,” legt Huub uit aan de grotere groep. “We moeten systemen bouwen die ons constant feedback geven, zodat we problemen kunnen detecteren voordat ze impact hebben op klanten.”</p>
+<p>Het team kiest voor een volwaardige Kubernetes-implementatie met uitgebreide monitoring en observability-tooling:</p>
+<ol>
+<li><strong>Uitgebreide Telemetrie</strong>: Implementatie van de LGTM-stack (Loki voor logs, Grafana voor dashboards, Tempo voor traces, en Mimir voor metrics)</li>
+<li><strong>Real-time Alerting</strong>: Proactieve waarschuwingen bij afwijkingen in prestaties of gedrag</li>
+<li><strong>Automatische Scaling</strong>: Feedback-gestuurde aanpassing van resources op basis van actuele belasting</li>
+<li><strong>Canary Deployments</strong>: Geleidelijke uitrol van nieuwe versies met automatische rollback bij problemen</li>
+<li><strong>Security Scanning</strong>: Continue vulnerability assessments van containerimages</li>
+</ol>
+<p>Miranda Jansen, de Security Officer, is bijzonder enthousiast over de security-aspecten. “Door security-telemetrie direct te integreren in onze observability-tools, wordt security een integraal onderdeel van onze feedback loops, niet een afterthought.”</p>
+<p>Het team organiseert een “Feedback Day” om de nieuwe mogelijkheden te demonstreren. Ze simuleren verschillende scenario’s, van performance-problemen tot security-vulnerabilities, en laten zien hoe het nieuwe platform deze detecteert en erop reageert, vaak automatisch en voordat gebruikers impact ervaren.</p>
+<p>“Dit is de kracht van de Tweede Weg,” legt Huub uit tijdens de demonstratie. “We creëren korte, constante feedback loops die ons in staat stellen om continu te leren en te verbeteren.”</p>
+<p>Aan het einde van Project 2 heeft Ahumbo niet alleen een schaalbaar Kubernetes-platform, maar ook een rijk ecosysteem van geautomatiseerde feedback dat het mogelijk maakt om snel problemen te identificeren en op te lossen, vaak voordat ze klanten bereiken.</p>
+<h2 id="project-3%3A-een-cultuur-van-experimenteren-en-leren-via-de-derde-weg" tabindex="-1">Project 3: Een Cultuur van Experimenteren en Leren via de Derde Weg <a aria-hidden="true" class="anchor" href="#project-3%3A-een-cultuur-van-experimenteren-en-leren-via-de-derde-weg">#</a></h2>
+<p>Een jaar na de start van hun containerisatie-reis wordt Ahumbo geconfronteerd met nieuwe uitdagingen. Geopolitieke spanningen en strengere Europese regelgeving voor dataopslag roepen vragen op over hun afhankelijkheid van Azure als Amerikaanse cloud-provider.</p>
+<p>In een spoedvergadering van het directieteam uit Jan-Willem de Groot, de CIO, zijn zorgen: “Een Nederlandse concurrent heeft tijdelijk geen toegang meer gehad tot hun cloud-infrastructuur vanwege een conflict over naleving van Amerikaanse exportrestricties. Zijn wij wel voldoende voorbereid op een dergelijk scenario?”</p>
+<p>Het DevSecOps-team wordt gevraagd om de mogelijkheden te onderzoeken voor een hybride of multi-cloud strategie. Bij de eerste bespreking hierover heerst onzekerheid over hoe deze uitdaging aan te pakken.</p>
+<p>“Dit is een compleet nieuwe dimensie,” zegt Bram Visser. “Tot nu toe hebben we ons gericht op flow en feedback binnen onze bestaande omgeving. Nu moeten we nadenken over portabiliteit tussen verschillende clouds.”</p>
+<p>Huub ziet hierin een kans om de Derde Weg van DevOps toe te passen. “Dit is precies waar de Derde Weg over gaat - een cultuur van experimenteren en leren. In plaats van te wachten tot er een probleem is, kunnen we proactief experimenten opzetten.”</p>
+<p>Hij legt uit hoe de Derde Weg een cultuur van nieuwsgierigheid en continue verbetering bevordert, waarbij fouten worden gezien als leermomenten in plaats van redenen voor schuld.</p>
+<p>Het team ontwikkelt een plan voor systematisch experimenteren met multi-cloud strategieën:</p>
+<ol>
+<li><strong>Soevereiniteitsanalyse</strong>: In kaart brengen waar data momenteel wordt opgeslagen en verwerkt</li>
+<li><strong>Exit-scenario’s simuleren</strong>: Oefeningen waarin toegang tot Azure plotseling wordt beperkt</li>
+<li><strong>Workload-portabiliteitsexperimenten</strong>: Testen hoe gemakkelijk applicaties kunnen worden verplaatst tussen clouds</li>
+<li><strong>Cloud-agnostische platformontwerp</strong>: Herontwerpen van hun Kubernetes platform om zo weinig mogelijk afhankelijk te zijn van Azure-specifieke diensten</li>
+</ol>
+<p>Thomas Bauwens, een specialist in open source cloud-technologieën, wordt ingehuurd om het team te adviseren. “Jullie basis met Kubernetes is solide, maar we moeten ervoor zorgen dat jullie configuratie, monitoring, en CI/CD pipelines ook cloud-agnostisch worden.”</p>
+<p>Het project leidt niet alleen tot technische verbeteringen in hun multi-cloud capaciteiten, maar ook tot een fundamentele cultuurverandering in hoe het bedrijf met uitdagingen omgaat. Teams organiseren regelmatig “game days” waarin ze verschillende scenario’s simuleren, van technische storingen tot geopolitieke uitdagingen, om hun reactievermogen te testen en te verbeteren.</p>
+<p>“De Derde Weg gaat over meer dan alleen techniek,” legt Huub uit tijdens een presentatie aan het management. “Het gaat over een organisatie die continu experimenteert, leert, en verbetert.”</p>
+<p>Hoewel de Derde Weg belangrijk is voor dit project, ligt de nadruk nog steeds op het verder verbeteren van de flow (Eerste Weg) en het versterken van feedback loops (Tweede Weg) in een multi-cloud context. Het team breidt hun CI/CD pipelines uit om deployment naar verschillende clouds te ondersteunen en implementeert cross-cloud monitoring om een consistent beeld te krijgen van hun applicaties, ongeacht waar ze draaien.</p>
+<h2 id="conclusie" tabindex="-1">Conclusie <a aria-hidden="true" class="anchor" href="#conclusie">#</a></h2>
+<p>De reis van Ahumbo van een traditionele “lift and shift” cloud-migratie naar een volwassen DevSecOps-organisatie begon met een eenvoudig experiment met K3s en containers om de flow van werk te verbeteren. Pas later, door de ontdekking en toepassing van De Drie Wegen van DevOps, heeft het bedrijf zijn transformatie compleet gemaakt.</p>
+<p>De eerste twee wegen, met hun focus op het verbeteren van flow en het versterken van feedback loops, vormden de basis voor deze transformatie. Ze stelden Ahumbo in staat om sneller en betrouwbaarder waarde te leveren aan klanten, problemen vroegtijdig te detecteren en op te lossen, en uiteindelijk flexibeler te reageren op veranderende omstandigheden.</p>
+<p>Wat begon als een zoektocht naar automatisering door een gefrustreerd ontwikkelteam, leidde uiteindelijk tot een fundamentele herziening van hoe Ahumbo software bouwt, deployt en beheert - een reis van DevOps-transformatie via de geleidelijke ontdekking en toepassing van de Drie Wegen.</p>
+</div>
+</body>
+</html>
