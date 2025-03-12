@@ -1,0 +1,570 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Les 3 - Hello, Ansible (1)!</title>
+<style>
+    :root {
+      /* GitHub Light Variables */
+      --color-canvas-default: #ffffff;
+      --color-canvas-subtle: #f6f8fa;
+      --color-border-default: #d0d7de;
+      --color-border-muted: #d8dee4;
+      --color-neutral-muted: rgba(175, 184, 193, 0.2);
+      --color-accent-fg: #0969da;
+      --color-accent-emphasis: #0969da;
+      --color-danger-fg: #cf222e;
+      --color-fg-default: #24292f;
+      --color-fg-muted: #57606a;
+      --color-fg-subtle: #6e7781;
+      --color-success-fg: #1a7f37;
+      --color-attention-fg: #9a6700;
+      --color-header-bg: #24292f;
+      --color-header-fg: #ffffff;
+      --color-header-logo: #ffffff;
+      --color-header-search-bg: #24292f;
+      --color-header-search-border: #57606a;
+      --color-code-block-bg: #f6f8fa;
+      --color-code-block-border: #d0d7de;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      color: var(--color-fg-default);
+      background-color: var(--color-canvas-default);
+      max-width: 1012px;
+      margin: 0 auto;
+      padding: 32px;
+      font-size: 16px;
+    }
+    
+    /* Layout */
+    .markdown-body {
+      position: relative;
+      margin-bottom: 16px;
+      padding: 32px;
+      border: 1px solid var(--color-border-default);
+      border-radius: 6px;
+      background-color: var(--color-canvas-default);
+    }
+    
+    /* Table of Contents */
+    .toc-container {
+      margin-bottom: 32px;
+      padding: 16px;
+      background-color: var(--color-canvas-subtle);
+      border: 1px solid var(--color-border-default);
+      border-radius: 6px;
+    }
+    
+    .toc-header {
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    
+    .toc-list {
+      padding-left: 20px;
+      margin-bottom: 0;
+    }
+    
+    .toc-item {
+      margin: 4px 0;
+    }
+    
+    .toc-link {
+      color: var(--color-accent-fg);
+      text-decoration: none;
+    }
+    
+    .toc-link:hover {
+      text-decoration: underline;
+    }
+    
+    /* Typography */
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 24px;
+      margin-bottom: 16px;
+      font-weight: 600;
+      line-height: 1.25;
+      padding-bottom: 0.3em;
+    }
+    
+    h1 {
+      font-size: 2em;
+      margin-top: 0;
+      border-bottom: 1px solid var(--color-border-muted);
+    }
+    
+    h2 {
+      font-size: 1.5em;
+      border-bottom: 1px solid var(--color-border-muted);
+    }
+    
+    h3 {
+      font-size: 1.25em;
+    }
+    
+    h4 {
+      font-size: 1em;
+    }
+    
+    h5 {
+      font-size: 0.875em;
+    }
+    
+    h6 {
+      font-size: 0.85em;
+      color: var(--color-fg-muted);
+    }
+    
+    a {
+      color: var(--color-accent-fg);
+      text-decoration: none;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+    
+    .anchor {
+      float: left;
+      padding-right: 4px;
+      margin-left: -20px;
+      line-height: 1;
+      display: inline-block;
+      color: var(--color-fg-muted);
+      opacity: 0;
+      text-decoration: none;
+    }
+    
+    h1:hover .anchor,
+    h2:hover .anchor,
+    h3:hover .anchor,
+    h4:hover .anchor,
+    h5:hover .anchor,
+    h6:hover .anchor {
+      opacity: 1;
+    }
+    
+    /* Text elements */
+    p {
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    
+    blockquote {
+      padding: 0 1em;
+      color: var(--color-fg-muted);
+      border-left: 0.25em solid var(--color-border-default);
+      margin: 0 0 16px 0;
+    }
+    
+    ul, ol {
+      padding-left: 2em;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    
+    li {
+      margin-top: 0.25em;
+    }
+    
+    li + li {
+      margin-top: 0.25em;
+    }
+    
+    /* Code */
+    code {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      padding: 0.2em 0.4em;
+      margin: 0;
+      font-size: 85%;
+      background-color: var(--color-neutral-muted);
+      border-radius: 6px;
+    }
+    
+    pre {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      padding: 16px;
+      overflow: auto;
+      font-size: 85%;
+      line-height: 1.45;
+      background-color: var(--color-code-block-bg);
+      border-radius: 6px;
+      margin-top: 0;
+      margin-bottom: 16px;
+      word-wrap: normal;
+      border: 1px solid var(--color-code-block-border);
+    }
+    
+    pre code {
+      font-size: 100%;
+      padding: 0;
+      margin: 0;
+      background-color: transparent;
+      border: 0;
+      white-space: pre;
+      word-break: normal;
+    }
+    
+    /* Tables */
+    table {
+      display: block;
+      width: 100%;
+      width: max-content;
+      max-width: 100%;
+      overflow: auto;
+      border-spacing: 0;
+      border-collapse: collapse;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    
+    table th {
+      font-weight: 600;
+    }
+    
+    table th,
+    table td {
+      padding: 6px 13px;
+      border: 1px solid var(--color-border-default);
+    }
+    
+    table tr {
+      background-color: var(--color-canvas-default);
+      border-top: 1px solid var(--color-border-muted);
+    }
+    
+    table tr:nth-child(2n) {
+      background-color: var(--color-canvas-subtle);
+    }
+    
+    /* Images */
+    img {
+      max-width: 100%;
+      box-sizing: content-box;
+      background-color: var(--color-canvas-default);
+      border-radius: 6px;
+    }
+    
+    /* Markdown extras */
+    hr {
+      height: 0.25em;
+      padding: 0;
+      margin: 24px 0;
+      background-color: var(--color-border-default);
+      border: 0;
+    }
+    
+    /* GitHub syntax highlighting */
+    .hljs-doctag,
+    .hljs-keyword,
+    .hljs-meta .hljs-keyword,
+    .hljs-template-tag,
+    .hljs-template-variable,
+    .hljs-type,
+    .hljs-variable.language_ {
+      color: #d73a49;
+    }
+    
+    .hljs-title,
+    .hljs-title.class_,
+    .hljs-title.class_.inherited__,
+    .hljs-title.function_ {
+      color: #6f42c1;
+    }
+    
+    .hljs-attr,
+    .hljs-attribute,
+    .hljs-literal,
+    .hljs-meta,
+    .hljs-number,
+    .hljs-operator,
+    .hljs-selector-attr,
+    .hljs-selector-class,
+    .hljs-selector-id,
+    .hljs-variable {
+      color: #005cc5;
+    }
+    
+    .hljs-meta .hljs-string,
+    .hljs-regexp,
+    .hljs-string {
+      color: #032f62;
+    }
+    
+    .hljs-built_in,
+    .hljs-symbol {
+      color: #e36209;
+    }
+    
+    .hljs-comment,
+    .hljs-code,
+    .hljs-formula {
+      color: #6a737d;
+    }
+    
+    .hljs-name,
+    .hljs-quote,
+    .hljs-selector-tag,
+    .hljs-selector-pseudo {
+      color: #22863a;
+    }
+    
+    .hljs-deletion {
+      color: #b31d28;
+      background-color: #ffeef0;
+    }
+    
+    .hljs-addition {
+      color: #22863a;
+      background-color: #f0fff4;
+    }
+  </style>
+</head>
+<body>
+<div class="toc-container">
+<h3 class="toc-header">Table of Contents</h3>
+<ul class="toc-list"><li class="toc-item"><a class="toc-link" href="#introductie-ansible">Introductie Ansible </a></li><li class="toc-item"><a class="toc-link" href="#inventory">Inventory </a></li><li class="toc-item"><a class="toc-link" href="#modules">Modules </a></li><li class="toc-item"><a class="toc-link" href="#adhoc-commando%E2%80%99s">Adhoc commando’s </a></li><li class="toc-item"><a class="toc-link" href="#playbooks">Playbooks </a></li><li class="toc-item"><a class="toc-link" href="#meerdere-machines-combineren">Meerdere machines combineren </a></li></ul>
+</div>
+<div class="markdown-body">
+<h1 id="les-3---hello%2C-ansible-(1)!" tabindex="-1">Les 3 - Hello, Ansible (1)! <a aria-hidden="true" class="anchor" href="#les-3---hello%2C-ansible-(1)!">#</a></h1>
+<p>Leerdoelen:</p>
+<ol>
+<li>Aan het einde van deze les weet je wat Ansible is en welke relatie het heeft met de theorie van Infrastructure as Code.</li>
+<li>Aan het einde van deze les kun je een aantal ad-hoc commando’s op een host uitvoeren</li>
+<li>Aan het einde van deze les kun je een simpel playbook schrijven en dit uitvoeren op een groep van hosts dmv een inventory.</li>
+</ol>
+<p>Inhoud:</p>
+<ul>
+<li>Introductie Ansible</li>
+<li>Inventory</li>
+<li>Adhoc commando’s</li>
+<li>Playbooks</li>
+<li>My first playbook</li>
+<li>Opdracht</li>
+<li>Waar hulp te krijgen?</li>
+</ul>
+<h2 id="introductie-ansible" tabindex="-1">Introductie Ansible <a aria-hidden="true" class="anchor" href="#introductie-ansible">#</a></h2>
+<p>Denk eens terug aan een eerder semester waarin je in een opdracht of project een server moest instellen. Waarschijnlijk voerde je toen veel commando’s handmatig uit, en had elke machine een unieke configuratie. Het was vast lastig om dit precies opnieuw te doen, zeker als je niet alles goed had gedocumenteerd, zoals welke commando’s of scripts je hebt gebruikt.</p>
+<p>Hoe fijn zou het zijn als je met een handige tool of programmeertaal precies kunt vastleggen hoe een server ingericht moet worden? Denk aan welke applicaties geïnstalleerd moeten worden of hoe de instellingen eruit moeten zien.</p>
+<p>Hier komt Ansible van pas. Ansible is een gratis tool waarmee je IT-taken kunt automatiseren, zoals het installeren van software, beheren van configuraties en regelen van infrastructuur. Het gebruikt een simpele taal genaamd YAML, die zowel door mensen als machines makkelijk te begrijpen is. Een groot voordeel van Ansible is dat het geen extra software (agents) nodig heeft op de servers die je beheert. Het gebruikt gewoon SSH om met die servers te communiceren, wat het eenvoudiger maakt dan andere tools zoals Puppet of Chef. Bovendien zorgt Ansible voor idempotentie. Dit betekent dat je dezelfde taak meerdere keren kunt uitvoeren zonder dat het iets kapot maakt of verandert als het al goed staat.</p>
+<p>Omdat Ansible via SSH werkt, kun je gebruikmaken van private/public key-authenticatie. Dit heeft veel voordelen, vooral op het gebied van beveiliging en gemak:</p>
+<p>Veiliger dan wachtwoorden: De privésleutel blijft altijd veilig bij jou, en alleen de publieke sleutel wordt op de server geplaatst. Zo kunnen wachtwoorden niet worden onderschept of gestolen.
+Geen gedoe met wachtwoorden: Je hoeft niet steeds een wachtwoord in te typen, wat het werken sneller en makkelijker maakt.
+Schaalbaar en flexibel: Het is eenvoudig om publieke sleutels naar nieuwe servers te sturen of oude sleutels te verwijderen. Dit is handig als bijvoorbeeld iemand het team verlaat, zonder dat je overal wachtwoorden hoeft aan te passen.</p>
+<h2 id="inventory" tabindex="-1">Inventory <a aria-hidden="true" class="anchor" href="#inventory">#</a></h2>
+<p>Ansible gebruikt een inventorybestand wat een beetje lijkt op het /etc/hosts bestand, waarin je ip adressen en namen van servers opneemt. Waar je in /etc/hosts IP-adressen koppelt aan servernamen of een fqdn, koppelt een Ansible-inventorybestand servers (IP-adressen of FQDN’s) aan groepen. Namen van inventorybestanden hoeven geen bepaalde naamgevingsconventie te volgen. Je mag het inventory bestand elke willekeurige naam geven.</p>
+<p>Voorbeeld van een stukje uit een inventory:</p>
+<pre><code class="hljs language-ini"><span class="hljs-section">[voorbeeldgroep]</span>
+webserver1.voorbeeld.nl
+</code></pre>
+<p>waarbij voorbeeldgroep de groep servers is die je beheert en <a href="http://webserver1.voorbeeld.nl">webserver1.voorbeeld.nl</a> de FQDN (of het IP-adres) is van een server in die groep. Als je poort 22 niet gebruikt voor SSH op deze server, moet je dit toevoegen aan het adres, zoals <a href="http://webserver1.voorbeeldgroep.nl:2222">webserver1.voorbeeldgroep.nl:2222</a>, aangezien Ansible standaard poort 22 gebruikt en deze waarde niet krijgt van je ssh-configuratie bestand.</p>
+<p>Je kunt je inventory ook in het standaard inventorybestand van Ansible plaatsen, /etc/ansible/hosts. Maar dat bestand vereist sudo-rechten en het is meestal beter om een losse inventory bij te houden in je Ansible-projecten.</p>
+<h2 id="modules" tabindex="-1">Modules <a aria-hidden="true" class="anchor" href="#modules">#</a></h2>
+<p>Ansible werkt met <code class="hljs"><span class="hljs-attribute">modules</span></code>. Deze modules zijn vaak Python scripts (kan ook een andere taal zijn) die iets specifieks kunnen. Denk bijvoorbeeld aan het installeren van software, het starten of stoppen van een service, het aanpassen van een bestand, of het aanmaken van een gebruiker.</p>
+<p>Ansible heeft standaard een grote verzameling ingebouwde modules (kun je later herkennen aan ansible.builtin) maar daarnaast zijn er ook veel communitymodules beschikbaar die je kunt gebruiken. Een compleet overzicht van alle beschikbare modules is <a href="https://docs.ansible.com/ansible/2.8/modules/list_of_all_modules.html">hier</a> te vinden.</p>
+<p>Zorg dat je in je commando’s en playbooks altijd duidelijk aangeeft of het een ansible.builtin, community of andere soort module is. Dit noem je de FQMN (Fully Qualified Module Name).</p>
+<h2 id="adhoc-commando%E2%80%99s" tabindex="-1">Adhoc commando’s <a aria-hidden="true" class="anchor" href="#adhoc-commando%E2%80%99s">#</a></h2>
+<p>Ansible gebruik je meestal met een <code class="hljs"><span class="hljs-attribute">playbook</span></code> of een <code class="hljs"><span class="hljs-attribute">ad-hoc</span></code> commando. Ad-hoc commando’s zijn erg handig voor taken die je niet heel vaak gebruikt. Je wil bijvoorbeeld een groep machines rebooten of weten of een machine of een groep van machines benaderbaar zijn. Als je meerdere taken achter elkaar wil uitvoeren gebruik je een playbook.</p>
+<p>De standaard module die Ansible gebruikt bij ad-hoc commando’s is de module <code class="hljs"><span class="hljs-built_in">command</span></code>. Met deze module kun je standaard Unix/Linux commando’s uitvoeren maar geen geavanceerde shell dingen doen zoals pipe en redirect. Daar is de module <code class="hljs"><span class="hljs-keyword">shell</span></code> beter in.</p>
+<p>Maar stel je wil een reboot uitvoeren van een groep machines:</p>
+<pre><code class="hljs language-bash">ansible -i inventory.ini voorbeeldgroep -a <span class="hljs-string">"/sbin/reboot"</span> -u [username] --become -K
+</code></pre>
+<p>Je ziet hier de opties <code class="hljs"><span class="hljs-comment">--become</span></code> en <code class="hljs"><span class="hljs-deletion">-K</span></code> omdat je waarschijnlijk root rechten nodig hebt voor het rebooten. Met <code class="hljs"><span class="hljs-comment">--become</span></code> geef je aan dat je root wil worden en met <code class="hljs"><span class="hljs-deletion">-K</span></code> dat je je sudo wachtwoord op wil geven.</p>
+<p>Pingen werkt net zoals je waarschijnlijk al wel eens gedaan hebt. Dat kun je met het ping commando doen zoals je waarschijnlijk wel eens gedaan hebt. Als je dat met ansible zou willen doen kan je commando er ongeveer zo uit zien:
+Ping:</p>
+<pre><code class="hljs language-bash">ansible -i inventory.ini voorbeeldgroep -a <span class="hljs-string">"ping -c 4 {{ inventory_hostname }}"</span> -u [username]
+</code></pre>
+<p>Met dit commando zal Ansible naar elke host in de groep ‘voorbeeldgroep’ 4 pings sturen. Nadeel hiervan is dat je bij elke host op 4 pings moet wachten en je eigenlijk alleen weet dat de host up is.</p>
+<p>Maar de command module is niet echt <code class="hljs"><span class="hljs-attribute">idempotent</span></code>, waar we het in les-01 over gehad hebben. Door een shell commando te gebruiken hebben we geen foutafhandeling, krijgen we geen respons terug etc. Daarom is het handig om de standaard modules van Ansible te gebruiken voor dit soort taken.
+Bijvoorbeeld de <code class="hljs"><span class="hljs-built_in">ping</span></code> module. Voordeel van het gebruik van deze module is ook dat je gelijk weet of de host op ssh benaderbaar is en het wachtwoord of het ssh-keypair klopt.</p>
+<pre><code class="hljs language-bash">ansible -i inventory.ini voorbeeldgroep -m ansible.builtin.ping -u [username]
+</code></pre>
+<p>Je ziet dat het commando een stuk korter is geworden.
+Als alles werkt, zal je een bericht zien als <code class="hljs">webserver1.voorbeeld.nl <span class="hljs-string">| SUCCES &gt;&gt;</span></code>, en dan het resultaat van je ping. Als het niet werkt, voer je de opdracht opnieuw uit met -vvvv aan het einde om uitgebreide uitvoer te zien. De kans is groot dat je SSH-sleutels niet correct hebt geconfigureerd.</p>
+<p>Een ander voorbeeld is de copy module</p>
+<pre><code class="hljs language-bash">ansible -i inventory.ini voorbeeldgroep -m ansible.builtin.file -a <span class="hljs-string">"dest=/tmp/test/a.txt mode=600 owner=gebruiker group=gebruikers"</span>
+</code></pre>
+<p>Je ziet dat de code declative is geworden, je geeft alleen maar aan welke file het moet zijn, welke rechten en wie de eigenaar is. Hoe het gedaan moet worden mag de Ansible module uitzoeken.</p>
+<p>Ansible-modules zijn handiger in gebruik dan bash-commando’s via het <code class="hljs">-<span class="hljs-selector-tag">a</span></code> argument omdat ze speciaal ontworpen zijn om veelvoorkomende taken simpel en efficiënt uit te voeren. Met een module geef je alleen aan wat je wilt bereiken, zoals een pakket installeren of een bestand aanpassen, en Ansible regelt de rest. Dit scheelt je het schrijven van exacte commando’s.</p>
+<p>Daarnaast zijn modules slim genoeg om te controleren of iets al goed staat voordat ze actie ondernemen, wat voorkomt dat taken onnodig opnieuw worden uitgevoerd. Dit maakt je automatisering niet alleen overzichtelijker en betrouwbaarder, maar ook beter schaalbaar en makkelijker te begrijpen voor anderen.</p>
+<h2 id="playbooks" tabindex="-1">Playbooks <a aria-hidden="true" class="anchor" href="#playbooks">#</a></h2>
+<p>Het is natuurlijk niet handig als je een aantal van dit commando’s achter elkaar uit moet voeren. Zeker niet als het handmatig moet. Ansible heeft hier als oplossing playbooks voor. De vertaling draaiboek pas er heel goed bij. In het draaiboek staan de taken beschreven die Ansible (achter elkaar) uit moet voeren.</p>
+<p>Een Ansible Playbook is geschreven in YAML-formaat, wat een menselijk leesbare en machine-verwerkbare taal is. Het Playbook bestaat uit een reeks van ‘plays’, die elk bestaan uit een of meer ‘tasks’. Elke taak beschrijft een specifieke actie die moet worden uitgevoerd, zoals het installeren van software, het aanpassen van configuratiebestanden, het controleren van de status van een dienst, en meer. Deze taken kunnen ook variabelen, voorwaardelijke verklaringen (conditions) en lussen (loops) bevatten om de automatisering flexibel en aanpasbaar te maken voor verschillende scenario’s.</p>
+<p>Een voorbeeld playbook:</p>
+<pre><code class="hljs language-yaml"> <span class="hljs-number">1</span> <span class="hljs-string">---</span>
+ <span class="hljs-attr">2 - hosts:</span> <span class="hljs-string">all</span>
+ <span class="hljs-attr">3   become:</span> <span class="hljs-literal">yes</span>
+ <span class="hljs-number">4</span>
+ <span class="hljs-attr">5   tasks:</span>
+ <span class="hljs-attr">6   - name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">chrony</span> <span class="hljs-string">(for</span> <span class="hljs-string">time</span> <span class="hljs-string">synchronization)</span> <span class="hljs-string">is</span> <span class="hljs-string">installed.</span>
+ <span class="hljs-attr">7     ansible.builtin.apt:</span>
+ <span class="hljs-attr">8       name:</span> <span class="hljs-string">chrony</span>
+ <span class="hljs-attr">9       state:</span> <span class="hljs-string">present</span>
+<span class="hljs-number">10</span>
+<span class="hljs-attr">11   - name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">chrony</span> <span class="hljs-string">is</span> <span class="hljs-string">running.</span>
+<span class="hljs-attr">12     ansible.builtin.service:</span>
+<span class="hljs-attr">13       name:</span> <span class="hljs-string">chronyd</span>
+<span class="hljs-attr">14       state:</span> <span class="hljs-string">started”</span>
+</code></pre>
+<p>Wat zou dit playbook doen?
+Laten we er stap voor stap door heen gaan:</p>
+<pre><code class="hljs language-yaml"><span class="hljs-number">1</span> <span class="hljs-string">---</span>
+</code></pre>
+<p>Deze eerste regel is een markering die aangeeft dat de rest van het document zal worden opgemaakt in YAML.</p>
+<pre><code class="hljs language-yaml"><span class="hljs-attr">2 - hosts:</span> <span class="hljs-string">all</span>
+</code></pre>
+<p>Deze regel vertelt Ansible op welke hosts dit draaiboek van toepassing is. Hier wordt aangegeven dat het op alle hosts uit de opgegeven inventory uitgevoerd moet worden.</p>
+<pre><code class="hljs language-yaml"><span class="hljs-attr">3 - become:</span> <span class="hljs-literal">yes</span>
+</code></pre>
+<p>Omdat we root toegang nodig hebben om chrony te installeren en de systeemconfiguratie te wijzigen, vertelt deze regel Ansible om sudo te gebruiken voor alle taken in het draaiboek (je vertelt Ansible om de rootgebruiker te ‘worden’ met sudo, of een equivalent).</p>
+<pre><code class="hljs language-yaml"><span class="hljs-attr">5 tasks:</span>
+</code></pre>
+<p>Nu volgt de opsomming van taken die uitgevoerd moeten worden. Alle taken na deze regel worden uitgevoerd op alle hosts (want hosts was all)</p>
+<pre><code class="hljs language-yaml"><span class="hljs-attr">6   - name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">chrony</span> <span class="hljs-string">(for</span> <span class="hljs-string">time</span> <span class="hljs-string">synchronization)</span> <span class="hljs-string">is</span> <span class="hljs-string">installed.</span>
+<span class="hljs-attr">7     ansible.builtin.apt:</span>
+<span class="hljs-attr">8       name:</span> <span class="hljs-string">chrony</span>
+<span class="hljs-attr">9       state:</span> <span class="hljs-string">present”</span>
+</code></pre>
+<p>Deze opdracht is hetzelfde als het uitvoeren van yum install chrony, maar het is veel intelligenter; het zal controleren of chrony is geïnstalleerd, en zo niet, installeer het dan. Je zou dit ook kunnen doen met het volgende shellscript:</p>
+<pre><code class="hljs language-bash"><span class="hljs-keyword">if</span> ! rpm -qa | grep -qw chrony; <span class="hljs-keyword">then</span>
+    apt install -y chrony
+<span class="hljs-keyword">fi</span>
+</code></pre>
+<p>Het bovenstaande script is echter nog steeds niet zo robuust als het yum-commando van Ansible. Wat als een ander pakket met chrony in zijn naam is geïnstalleerd, maar niet chrony? Dit script zou extra aanpassingen en complexiteit vereisen om overeen te komen met het eenvoudige Ansible yum-commando.</p>
+<pre><code class="hljs language-yaml"><span class="hljs-attr">11   - name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">chrony</span> <span class="hljs-string">is</span> <span class="hljs-string">running.</span>
+<span class="hljs-attr">12     ansible.builtin.service:</span>
+<span class="hljs-attr">13       name:</span> <span class="hljs-string">chronyd</span>
+<span class="hljs-attr">14       state:</span> <span class="hljs-string">started</span>
+<span class="hljs-attr">15       enabled:</span> <span class="hljs-literal">yes</span>
+</code></pre>
+<p>Deze laatste taak controleert en zorgt ervoor dat de chronyd-service wordt gestart en uitgevoerd, en stelt deze in om te starten bij het opstarten van het systeem. Een shellscript met hetzelfde effect zou zijn:</p>
+<pre><code class="hljs language-bash"><span class="hljs-comment"># Start chronyd if it's not already running.</span>
+<span class="hljs-keyword">if</span> ps aux | grep -q <span class="hljs-string">"[c]hronyd"</span>
+<span class="hljs-keyword">then</span>
+    <span class="hljs-built_in">echo</span> <span class="hljs-string">"chronyd is running."</span> &gt; /dev/null
+<span class="hljs-keyword">else</span>
+    systemctl start chronyd.service &gt; /dev/null
+    <span class="hljs-built_in">echo</span> <span class="hljs-string">"Started chronyd."</span>
+<span class="hljs-keyword">fi</span>
+<span class="hljs-comment"># Make sure chronyd is enabled on system startup.</span>
+systemctl <span class="hljs-built_in">enable</span> chronyd.service
+</code></pre>
+<p>Hier zie je hoe de dingen ingewikkeld worden in het land van shell-scripts! En dit shellscript is nog steeds niet zo robuust als wat je krijgt met Ansible. Om idempotentie te behouden en foutcondities af te handelen, moet je nog meer werk doen met eenvoudige shellscripts dan met Ansible.</p>
+<p>Net als bij code- en configuratiebestanden is documentatie in Ansible (bijvoorbeeld het gebruik van de name-parameter en/of het toevoegen van opmerkingen aan de YAML voor gecompliceerde taken) niet absoluut noodzakelijk. Maar zorg ervoor dat je taken een logische naam hebben met wat ze doen (dit is ook verplicht voor de opdrachten). Dit helpt ook wanneer je de playbooks moet overdragen, zodat je kunt laten zien wat er gebeurt in een voor mensen leesbaar formaat.</p>
+<h2 id="meerdere-machines-combineren" tabindex="-1">Meerdere machines combineren <a aria-hidden="true" class="anchor" href="#meerdere-machines-combineren">#</a></h2>
+<p>Hieronder nog een wat realistischer en complexer voorbeeld met 2 applicatie of webservers en een database server.</p>
+<p>Er zijn veel manieren waarop je aan Ansible duidelijk kunt maken welke servers je beheert, maar de meest standaard en eenvoudigste is om ze toe te voegen aan een inventorybestand dat je opslaat in de directory van je Ansible-project.</p>
+<p>In de eerdere voorbeelden specificeerden we het pad naar het inventarisbestand op de opdrachtregel met behulp van -i inventory. Je kunt ook in <code class="hljs"><span class="hljs-regexp">/etc/</span>ansible/ansible.cfg</code> of in de map waarin je werkt in <code class="hljs">ansible.cfg</code> het volgende configureren:</p>
+<pre><code class="hljs language-ini">1 <span class="hljs-section">[defaults]</span>
+2 <span class="hljs-attr">inventory</span> = inventory.ini
+</code></pre>
+<p>Het verschil in applicatie/webservers en de database server kun je als volgt in een inventory opnemen</p>
+<pre><code class="hljs language-ini"> 1 <span class="hljs-section">[all]</span>
+ 2 app-server1 <span class="hljs-attr">ansible_host</span>=<span class="hljs-number">192.168</span>.<span class="hljs-number">60.4</span>
+ 3 app-server2 <span class="hljs-attr">ansible_host</span>=<span class="hljs-number">192.168</span>.<span class="hljs-number">60.5</span>
+ 4 database-server1 <span class="hljs-attr">ansible_host</span>=<span class="hljs-number">192.168</span>.<span class="hljs-number">60.6</span>
+ 5
+ 6 <span class="hljs-section">[app]</span>
+ 7 app-server1 <span class="hljs-attr">ansible_host</span>=<span class="hljs-number">192.168</span>.<span class="hljs-number">60.4</span>
+ 8 app-server2 <span class="hljs-attr">ansible_host</span>=<span class="hljs-number">192.168</span>.<span class="hljs-number">60.5</span>
+ 9
+10 <span class="hljs-section">[db]</span>
+11 database-server1 <span class="hljs-attr">ansible_host</span>=<span class="hljs-number">192.168</span>.<span class="hljs-number">60.6</span>
+12
+13
+14 <span class="hljs-section">[all:vars]</span>
+15 <span class="hljs-attr">ansible_user</span>=ansible
+16 <span class="hljs-attr">ansible_ssh_private_key_file</span>=~/.ssh/key
+</code></pre>
+<ol>
+<li>Het eerste blok plaatst alle drie de machines in de groep [all].</li>
+<li>Het tweede blok plaatst beide applicatieservers in het [app] blok.</li>
+<li>Het derde blok plaats de database server in het [db] blok.</li>
+<li>Het vierde blok geeft een aantal variabelen aan alle servers in de groep ‘all’.</li>
+</ol>
+<p>Met deze inventory hebben kun je ook playbooks uitvoeren op de verschillende hosts.
+Stel, we willen op de web/app servers een bepaald pakket (chrony) geinstalleerd hebben en op de database servers wat anders (curl). Dan kun je met hosts aangeven op welke groep servers je de taken uitgevoerd wil hebben:
+Als je dit in 1 playbook zou willen uitvoeren ziet het playbook het er als volgt uit:</p>
+<pre><code class="hljs language-yaml"><span class="hljs-meta">---</span>
+<span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">app</span>
+  <span class="hljs-attr">become:</span> <span class="hljs-literal">true</span>
+
+  <span class="hljs-attr">tasks:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">chrony</span> <span class="hljs-string">is</span> <span class="hljs-string">installed</span>
+      <span class="hljs-attr">ansible.builtin.apt:</span>
+        <span class="hljs-attr">name:</span> <span class="hljs-string">chrony</span>
+        <span class="hljs-attr">state:</span> <span class="hljs-string">present</span>
+
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">chrony</span> <span class="hljs-string">is</span> <span class="hljs-string">started</span>
+      <span class="hljs-attr">ansible.builtin.service:</span>
+        <span class="hljs-attr">name:</span> <span class="hljs-string">chronyd</span>
+        <span class="hljs-attr">state:</span> <span class="hljs-string">started</span>
+        <span class="hljs-attr">enabled:</span> <span class="hljs-literal">true</span>
+
+<span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">db</span>
+  <span class="hljs-attr">become:</span> <span class="hljs-literal">true</span>
+
+  <span class="hljs-attr">tasks:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">curl</span> <span class="hljs-string">is</span> <span class="hljs-string">installed</span>
+      <span class="hljs-attr">ansible.builtin.apt:</span>
+        <span class="hljs-attr">name:</span> <span class="hljs-string">curl</span>
+        <span class="hljs-attr">state:</span> <span class="hljs-string">present</span>
+</code></pre>
+<p>Het playbook kun je uitvoeren met het volgende commando:</p>
+<pre><code class="hljs language-bash">ansible-playbook playbook.yml
+</code></pre>
+<blockquote>
+<p>Opdracht 1</p>
+<ul>
+<li>Maak een nieuwe repository les-03 aan.</li>
+<li>Maak een nieuwe git branch <code class="hljs"><span class="hljs-built_in">test</span></code> aan en werk voor opdracht 1 en 2 in deze branch.</li>
+<li>Deploy met Terraform een VM en zorg dat je in kunt loggen op deze vm dmv een ssh-key. Zorg dat er bij het deployen van deze VM automatisch een inventory wordt aangemaakt.</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>Opracht 2</p>
+<ul>
+<li>In de <code class="hljs"><span class="hljs-built_in">test</span></code> branch:</li>
+<li>Maak playbooks voor de volgende taken:</li>
+<li>Alle packages op een Ubuntu VM moeten geupdate worden.</li>
+<li>Het bestand /etc/hosts op de VM moet aangepast worden, er moet een regel toegevoegd worden in /etc/hosts toe die naar je esxi server wijst. Noem de host esxi.</li>
+<li>Een user <code class="hljs"><span class="hljs-built_in">test</span></code> toevoegen op de VM</li>
+<li>Een lokaal bestand wordt gekopieerd naar de VM</li>
+<li>Maak een playbook dat /etc/ en /var/www/ back-upt, voeg een cronjob toe die dagelijks een back-up maakt en kopieer dit naar /tmp</li>
+<li>Voer de code uit op de VM van opdracht 1</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>Opdracht 3</p>
+<ul>
+<li>Gebruik de repository van opdracht 1, maak een nieuwe branch <code class="hljs"><span class="hljs-attribute">productie</span></code> aan</li>
+<li>Deploy met Terraform drie VMs (vanuit 1 manifest) en zorg dat je in kunt loggen op deze vm’s dmv een ssh-key. Zorg dat er bij het deployen van deze vm’s automatisch een inventory wordt aangemaakt. Er zijn 2 webservers en 1 database server.</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>Opdracht 4</p>
+<ul>
+<li>In de <code class="hljs"><span class="hljs-attribute">productie</span></code> branch:</li>
+<li>Schrijf een playbook wat op twee webservers nginx installeert en op de database server mariadb. Het playbook moet gebruik maken van de groepen uit de inventory van Opdracht 3.</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>Opdracht 5</p>
+<ul>
+<li>In een branch <code class="hljs"><span class="hljs-attribute">proxmox</span></code></li>
+<li>Schrijf een playbook dat van een Proxmox Hypervisor alle VM’s backupped. Gebruik de volgende waardes: api gebruiker en wachtwoord is <code class="hljs"><span class="hljs-built_in">test</span></code>, de api host is node1, en de storage waarop de backups opgeslagen moeten worden heet <code class="hljs"><span class="hljs-attribute">backup_vm</span></code>. Voor deze opdracht moet de juiste proxmox community module gebruikt worden.</li>
+<li>Je kunt dit playbook uiteraard niet testen.</li>
+</ul>
+</blockquote>
+<p>Lever de code van opdracht 4 deze week in op Brightspace.</p>
+</div>
+</body>
+</html>
